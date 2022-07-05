@@ -45,10 +45,12 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		instrBin := uint32(0)
 
 		switch opcode {
-		case "MOVZ":
+		// IM instructions
+		case "MOVZ", "MOVK":
 			instrBin = instrIM(opcode, operands, filePath, instrIndex + 1)
 		}
 
+		// Add the instruction to the program
 		program[instrIndex] = instrBin
 		instrIndex++
 	}
@@ -78,10 +80,11 @@ func instrIM(opcode string, operands []string, fileName string, lineNumber int) 
 	shiftStr := strings.Split(operands[2], " ")[1]
 	shiftInt, errConv := strconv.ParseInt(shiftStr, 10, 0)
 	if errConv == nil {
+		// Add the shift to the binary
 		outBin  = outBin << 2 | uint32(shiftInt / 16)
-		fmt.Printf("%x\n", outBin)
 	} else {
-		errMsg := fmt.Sprintf("Bad shift value: File: %s; Line: %d", fileName, lineNumber)
+		// Bad shift value error
+		errMsg := fmt.Sprintf("Bad shift value; File: %s; Line: %d", fileName, lineNumber)
 		log.Fatal(errMsg)
 	}
 
@@ -97,16 +100,42 @@ func instrIM(opcode string, operands []string, fileName string, lineNumber int) 
 		base = 10
 		cut = 1
 	}
+	// Get the value based on the base that was decided earlier
 	val, errConv := strconv.ParseInt(operands[1][cut:], base, 16)
 	if errConv == nil {
-		fmt.Println(val)
+		// Add the value to the binary
 		outBin = outBin << 16 | uint32(val)
 	} else {
-		errMsg := fmt.Sprintf("Bad move immediate value: File: %s; Line: %d", fileName, lineNumber)
+		errMsg := ""
+		if strings.Contains(errConv.Error(), "value out of range") {
+			// Out of range errors
+			if base == 10 {
+				errMsg = fmt.Sprintf("Bad move immediate value: Value must be between 0 and 65,535 (16 bits) but got %s; File: %s; Line: %d", operands[1][1:], fileName, lineNumber)
+			} else {
+				errMsg = fmt.Sprintf("Bad move immediate value: Value must be between 0x0000 and 0xFFFF (16 bits) but got %s; File: %s; Line: %d", operands[1][1:], fileName, lineNumber)
+			}
+		} else {
+			// Bad value error
+			errMsg = fmt.Sprintf("Bad move immediate value; File: %s; Line: %d", fileName, lineNumber)
+		}
 		log.Fatal(errMsg)
 	}
 
-	fmt.Printf("%b", outBin)
+	// Get the register to move the value to
+	reg, errConv := strconv.ParseInt(operands[0][1:], 10, 0)
+	if errConv != nil {
+		// Bad value error
+		errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
+		log.Fatal(errMsg)
+	} else if reg < 0 || reg > 30 {
+		// Invalid register error
+		errMsg := fmt.Sprintf("Bad register value: Register must be between 0 and 30 (inclusive); File: %s; Line: %d", fileName, lineNumber)
+		log.Fatal(errMsg)
+	} else {
+		// Add the register to the binary
+		outBin = outBin << 5 | uint32(reg)
+	}
 
+	// Return the instruction binary
 	return outBin
 }
