@@ -1,5 +1,10 @@
 package hardware
 
+import (
+	"fmt"
+	"time"
+)
+
 // Basic hardware struct
 type Hardware struct {
 	name string
@@ -10,6 +15,11 @@ type Hardware struct {
 func NewHardware(hwName string, hwId int) *Hardware {
 	hw := Hardware { name: hwName, id: hwId }
 	return &hw
+}
+
+func (hw *Hardware) Log(msg string) {
+	currentTime := time.Now().UnixNano() / int64(time.Millisecond)
+	fmt.Printf("[HW: %s %d]: %d - %s\n", hw.name, hw.id, currentTime, msg)
 }
 
 // Gets the name of the hardware
