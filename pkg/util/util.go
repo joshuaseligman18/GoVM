@@ -6,7 +6,7 @@ import (
 )
 
 // Creates a string representation of a number in hexadecimal format
-func ConvertToHex(num int32, minLength int) string {
+func ConvertToHex(num uint32, minLength int) string {
 	// Convert the number to hex
 	converted := fmt.Sprintf("%x", num)
 	// Add leading 0s if needed

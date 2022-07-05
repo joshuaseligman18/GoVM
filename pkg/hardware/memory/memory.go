@@ -5,16 +5,16 @@ import "github.com/joshuaseligman/GoVM/pkg/hardware"
 // Struct for memory
 type Memory struct {
 	hw *hardware.Hardware
-	ram []int32
-	mar int
-	mdr int32
+	ram []uint32
+	mar uint
+	mdr uint32
 }
 
 // Creates a new memory struct
-func NewMemory(addressableSpace int) *Memory {
+func NewMemory(addressableSpace uint) *Memory {
 	mem := Memory { 
 		hw: hardware.NewHardware("RAM", 0), 
-		ram: make([]int32, addressableSpace), 
+		ram: make([]uint32, addressableSpace), 
 		mar: 0,
 		mdr: 0,
 	}
@@ -32,22 +32,22 @@ func (mem *Memory) Write() {
 }
 
 // Gets the MAR
-func (mem *Memory) GetMar() int {
+func (mem *Memory) GetMar() uint {
 	return mem.mar
 }
 
 // Gets the MDR
-func (mem *Memory) GetMdr() int32 {
+func (mem *Memory) GetMdr() uint32 {
 	return mem.mdr
 }
 
 // Sets the MAR
-func (mem *Memory) SetMar(newMar int) {
+func (mem *Memory) SetMar(newMar uint) {
 	mem.mar = newMar
 }
 
 // Sets the MDR
-func (mem *Memory) SetMdr(newMdr int32) {
+func (mem *Memory) SetMdr(newMdr uint32) {
 	mem.mdr = newMdr
 }
 
