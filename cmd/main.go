@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Hello world")
-	hw := hardware.NewHardware("CPU")
+	hw := hardware.NewHardware("CPU", 0)
 	fmt.Println(hw.GetName())
+	fmt.Println(hw.GetId())
 }
