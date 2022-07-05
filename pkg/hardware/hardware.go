@@ -17,6 +17,7 @@ func NewHardware(hwName string, hwId int) *Hardware {
 	return &hw
 }
 
+// Logs a message
 func (hw *Hardware) Log(msg string) {
 	currentTime := time.Now().UnixNano() / int64(time.Millisecond)
 	fmt.Printf("[HW: %s %d]: %d - %s\n", hw.name, hw.id, currentTime, msg)

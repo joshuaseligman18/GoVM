@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/joshuaseligman/GoVM/pkg/hardware"
+	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
 )
 
 func main() {
-	hw := hardware.NewHardware("CPU", 0)
-	hw.Log("hello")
+	ram := memory.NewMemory(0x10000)
+	ram.Log("Hello memory")
 }
