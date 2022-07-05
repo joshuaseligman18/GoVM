@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
+
+	"github.com/joshuaseligman/GoVM/pkg/assembler"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
 	"github.com/joshuaseligman/GoVM/pkg/util"
-	"github.com/joshuaseligman/GoVM/pkg/assembler"
 )
 
 func main() {
@@ -17,5 +19,5 @@ func main() {
 	ram.Read()
 	ram.Log(util.ConvertToHex(ram.GetMdr(), 8))
 
-	assembler.AssembleProgram("test.goas", 0x10000)
+	fmt.Printf("%b", assembler.AssembleProgram("test.goas", 0x10000)[:10])
 }
