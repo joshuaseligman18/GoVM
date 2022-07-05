@@ -85,5 +85,28 @@ func instrIM(opcode string, operands []string, fileName string, lineNumber int) 
 		log.Fatal(errMsg)
 	}
 
+	// Get the value to move into the register
+	base := 0
+	cut := 0
+	if operands[1][:3] == "#0x" {
+		// Base 16
+		base = 16
+		cut = 3
+	} else {
+		// Base 10
+		base = 10
+		cut = 1
+	}
+	val, errConv := strconv.ParseInt(operands[1][cut:], base, 16)
+	if errConv == nil {
+		fmt.Println(val)
+		outBin = outBin << 16 | uint32(val)
+	} else {
+		errMsg := fmt.Sprintf("Bad move immediate value: File: %s; Line: %d", fileName, lineNumber)
+		log.Fatal(errMsg)
+	}
+
+	fmt.Printf("%b", outBin)
+
 	return outBin
 }
