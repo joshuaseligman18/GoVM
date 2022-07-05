@@ -8,11 +8,11 @@ import (
 func main() {
 	ram := memory.NewMemory(0x10000)
 	ram.SetMar(0x0)
-	ram.SetMdr(0x0000000000000005)
+	ram.SetMdr(0x00000005)
 	ram.Write()
 	ram.SetMar(0x10000)
 	ram.SetMdr(0x0)
 	ram.SetMar(0x0)
 	ram.Read()
-	ram.Log(util.ConvertToHex(ram.GetMdr(), 16))
+	ram.Log(util.ConvertToHex(ram.GetMdr(), 8))
 }
