@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/joshuaseligman/GoVM/pkg/hardware"
+	"github.com/joshuaseligman/GoVM/internal/hardware"
 )
 
 func main() {
