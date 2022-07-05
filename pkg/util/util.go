@@ -8,7 +8,7 @@ import (
 // Creates a string representation of a number in hexadecimal format
 func ConvertToHex(num uint32, minLength int) string {
 	// Convert the number to hex
-	converted := fmt.Sprintf("%x", num)
+	converted := fmt.Sprintf("%X", num)
 	// Add leading 0s if needed
 	if len(converted) < minLength {
 		diff := minLength - len(converted)
@@ -16,6 +16,6 @@ func ConvertToHex(num uint32, minLength int) string {
 		converted = pad + converted
 	}
 	// Add the '0x' prefix and make it all uppercase
-	converted = "0x" + strings.ToUpper(converted)
+	converted = "0x" + converted
 	return converted
 }
