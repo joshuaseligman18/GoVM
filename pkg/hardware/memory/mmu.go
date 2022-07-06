@@ -33,9 +33,19 @@ func (mmu *Mmu) CallWrite() {
 	mmu.memory.Write()
 }
 
+// Gets the MAR of the MMU
+func (mmu *Mmu) GetMar() uint {
+	return mmu.mar
+}
+
 // Sets the MAR of the MMU
 func (mmu *Mmu) SetMar(newMar uint) {
 	mmu.mar = newMar
+}
+
+// Gets the MDR of the MMU
+func (mmu *Mmu) GetMdr() uint32 {
+	return mmu.mdr
 }
 
 // Sets the MDR of the MMU

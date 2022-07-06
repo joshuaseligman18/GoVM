@@ -7,13 +7,20 @@ import (
 
 type FetchUnit struct {
 	hw *hardware.Hardware
-	mmuInstr *memory.Mmu
+	mmu *memory.Mmu
 }
 
 func NewFetchUnit() *FetchUnit {
 	fetchUnit := FetchUnit {
 		hw: hardware.NewHardware("IFU", 0),
-		mmuInstr: memory.NewMmu(),
+		mmu: memory.NewMmu(),
 	}
 	return &fetchUnit
+}
+
+// Fetches the instruction from memory
+func (ifu *FetchUnit) FetchInstruction(addr uint) uint32 {
+	ifu.mmu.SetMar(addr)
+	ifu.mmu.CallRead()
+	return ifu.mmu.GetMdr()
 }

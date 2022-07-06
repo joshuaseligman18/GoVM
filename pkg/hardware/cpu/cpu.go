@@ -1,6 +1,8 @@
 package cpu
 
 import (
+	"fmt"
+
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 )
 
@@ -27,7 +29,9 @@ func NewCpu() *Cpu {
 
 // Function that gets called every clock cycle
 func (cpu *Cpu) Pulse() {
-	cpu.Log("pulse received")
+	instr := cpu.fetchUnit.FetchInstruction(cpu.programCounter)
+	cpu.programCounter++
+	fmt.Println(instr)
 }
 
 // Logs a message
