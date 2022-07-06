@@ -7,7 +7,7 @@ import (
 // The struct for the memory management unit
 type Mmu struct {
 	hw *hardware.Hardware // The hardware struct
-	mar int // The memory address register
+	mar uint // The memory address register
 	mdr uint32 // The memory data register
 }
 

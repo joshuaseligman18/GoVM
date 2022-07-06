@@ -1,12 +1,16 @@
 package cpu
 
-import "github.com/joshuaseligman/GoVM/pkg/hardware"
+import (
+	"github.com/joshuaseligman/GoVM/pkg/hardware"
+)
 
 // Struct for the CPU
 type Cpu struct {
 	hw *hardware.Hardware // The hardware struct
 	acc uint64 // The accumulator
 	reg []uint64 // Other registers
+	programCounter uint // The address of the current instruction being fetched
+	fetchUnit *FetchUnit // The fetch unit
 }
 
 // Creates the CPU
@@ -15,6 +19,8 @@ func NewCpu() *Cpu {
 		hw: hardware.NewHardware("CPU", 0),
 		acc: 0x0,
 		reg: make([]uint64, 32),
+		programCounter: 0,
+		fetchUnit: NewFetchUnit(),
 	}
 	return &cpu
 }
