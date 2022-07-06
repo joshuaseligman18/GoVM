@@ -10,19 +10,18 @@ import (
 
 func main() {
 	assembledProgram := assembler.AssembleProgram("test.goas", 0x10000)
-
+	
 	mem := memory.NewFlashedMemory(assembledProgram)
-
+	
 	mem.MemoryDump(0, 10)
-
+	
 	cpu := cpu.NewCpu(mem)
+	guiData := gui.NewGuiData(cpu)
 
 	clk := clock.NewClock()
 
-	clk.AddClockListener(cpu)
-	
-	guiData := gui.NewGuiData(cpu)
 	clk.AddClockListener(guiData)
+	clk.AddClockListener(cpu)
 	
 	go clk.StartClock(500)
 	gui.CreateGui(guiData)

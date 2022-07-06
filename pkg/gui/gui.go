@@ -23,6 +23,7 @@ type GuiData struct {
 	accData *widget.Label // The label for the value stored in the accumulator
 	regLabels []*widget.Label // The labels for the registers
 	regData []*widget.Label // The labels for the values stored in the registers
+	ifidLabels []*widget.Label // The labels for the IFID register
 }
 
 // Creates the GuiData struct
@@ -73,16 +74,37 @@ func NewGuiData(trackedCpu *cpu.Cpu) *GuiData {
 		guiData.regData[i] = widget.NewLabel(util.ConvertToHexUint64(uint64(0), 16))
 	}
 
+	// Create the IFID labels
+	guiData.ifidLabels = make([]*widget.Label, 2)
+	for i := 0; i < len(guiData.ifidLabels); i++ {
+		switch i {
+		case 0:
+			guiData.ifidLabels[i] = widget.NewLabel(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0, 8)))
+		case 1:
+			guiData.ifidLabels[i] = widget.NewLabel(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(0, 8)))
+		}
+	}
+
 	return &guiData
 }
 
 // Function that gets called every clock cycle
 func (guiData *GuiData) Pulse() {
+	// Update the register values
 	guiData.curTime.SetText(fmt.Sprintf("%d", util.GetCurrentTime()))
 	guiData.pcData.SetText(util.ConvertToHexUint32(uint32(guiData.cpu.GetProgramCounter()), 8))
 	guiData.accData.SetText(util.ConvertToHexUint64(guiData.cpu.GetAcc(), 16))
 	for i := 0; i < len (guiData.regData); i++ {
 		guiData.regData[i].SetText(util.ConvertToHexUint64(guiData.cpu.GetRegisters()[i], 16))
+	}
+	// Update the IFID values
+	for i := 0; i < len(guiData.ifidLabels); i++ {
+		switch i {
+		case 0:
+			guiData.ifidLabels[i].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetIFIDReg().GetInstruction(), 8)))
+		case 1:
+			guiData.ifidLabels[i].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(uint32(guiData.cpu.GetIFIDReg().GetIncrementedPC()), 8)))
+		}
 	}
 }
 
@@ -93,7 +115,7 @@ func CreateGui(guiData *GuiData) {
 	win := app.NewWindow("GoVM")
 
 	// Create the grid and add the labels and data
-	grid := container.New(layout.NewGridLayout(6))
+	grid := container.New(layout.NewGridLayout(4))
 	
 	grid.Add(guiData.timeLabel)
 	grid.Add(guiData.curTime)
@@ -109,8 +131,19 @@ func CreateGui(guiData *GuiData) {
 		grid.Add(guiData.regData[i])
 	}
 
+	// Create the IFID grid and accordion item
+	ifidTable := container.New(layout.NewGridLayout(1))
+	ifidTable.Add(guiData.ifidLabels[0])
+	ifidTable.Add(guiData.ifidLabels[1])
+	ifidAccordionItem := widget.NewAccordionItem("IFID Register", ifidTable)
+	ifidAccordionItem.Open = true
+
+	pipelineAccordion := widget.NewAccordion(ifidAccordionItem)
+
+	content := container.NewHSplit(grid, pipelineAccordion)
+
 	// Add the grid to the window
-	win.SetContent(grid)
+	win.SetContent(content)
 
 	// Start the application
 	win.ShowAndRun()

@@ -14,3 +14,13 @@ func NewIFIDReg(instruction uint32, pc uint) *IFIDReg {
 	}
 	return &reg
 }
+
+// Gets the instruction in the IFID register
+func (ifidReg *IFIDReg) GetInstruction() uint32 {
+	return ifidReg.instr
+}
+
+// Gets the incremented program counter in the IFID register
+func (ifidReg *IFIDReg) GetIncrementedPC() uint {
+	return ifidReg.incrementedPC
+}

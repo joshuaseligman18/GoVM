@@ -1,8 +1,6 @@
 package cpu
 
 import (
-	"fmt"
-
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
 )
@@ -34,9 +32,6 @@ func NewCpu(mem *memory.Memory) *Cpu {
 func (cpu *Cpu) Pulse() {
 	fetchOut := cpu.fetchUnit.FetchInstruction(&cpu.programCounter)
 	cpu.ifidReg = fetchOut
-
-	fmt.Println(cpu.ifidReg)
-	fmt.Println(cpu.programCounter)
 }
 
 // Logs a message
@@ -57,4 +52,9 @@ func (cpu *Cpu) GetAcc() uint64 {
 // Gets the registers
 func (cpu *Cpu) GetRegisters() []uint64 {
 	return cpu.reg
+}
+
+// Gets the IFID register
+func (cpu *Cpu) GetIFIDReg() *IFIDReg {
+	return cpu.ifidReg
 }
