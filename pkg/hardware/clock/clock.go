@@ -7,8 +7,8 @@ import (
 
 // Struct for tho clock
 type Clock struct {
-	hw *hardware.Hardware
-	clockListeners []ClockListener
+	hw *hardware.Hardware // The hardware struct
+	clockListeners []ClockListener // The list of items that listen to the clock
 }
 
 // Creates the clock

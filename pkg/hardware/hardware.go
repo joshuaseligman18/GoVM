@@ -7,8 +7,8 @@ import (
 
 // Basic hardware struct
 type Hardware struct {
-	name string
-	id int
+	name string // The name of the hardware
+	id int // The ID of the hardware
 }
 
 // Creates a new hardware

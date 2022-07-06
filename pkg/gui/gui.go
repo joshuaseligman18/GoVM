@@ -14,10 +14,10 @@ import (
 
 // Struct for the data represented within the GUI
 type GuiData struct {
-	accLabel *widget.Label
-	accData *widget.Label
-	regLabels []*widget.Label
-	regData []*widget.Label
+	accLabel *widget.Label // The label for the accumulator
+	accData *widget.Label // The label for the value stored in the accumulator
+	regLabels []*widget.Label // The labels for the registers
+	regData []*widget.Label // The labels for the values stored in the registers
 }
 
 // Creates the GuiData struct
@@ -63,10 +63,13 @@ func NewGuiData(cpu *cpu.Cpu) *GuiData {
 	return &guiData
 }
 
+// Function that initializes and starts the gui
 func CreateGui(guiData *GuiData) {
+	// Create the app and window
 	app := app.New()
 	win := app.NewWindow("GoVM")
 
+	// Create the grid and add the labels and data
 	grid := container.New(layout.NewGridLayout(4))
 
 	grid.Add(guiData.accLabel)
@@ -77,7 +80,9 @@ func CreateGui(guiData *GuiData) {
 		grid.Add(guiData.regData[i])
 	}
 
+	// Add the grid to the window
 	win.SetContent(grid)
 
+	// Start the application
 	win.ShowAndRun()
 }

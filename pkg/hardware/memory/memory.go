@@ -4,10 +4,10 @@ import "github.com/joshuaseligman/GoVM/pkg/hardware"
 
 // Struct for memory
 type Memory struct {
-	hw *hardware.Hardware
-	ram []uint32
-	mar uint
-	mdr uint32
+	hw *hardware.Hardware // The hardware struct
+	ram []uint32 // The RAM
+	mar uint // The memory address register
+	mdr uint32 // The memory data register
 }
 
 // Creates a new memory struct

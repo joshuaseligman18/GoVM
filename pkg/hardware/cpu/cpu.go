@@ -4,9 +4,9 @@ import "github.com/joshuaseligman/GoVM/pkg/hardware"
 
 // Struct for the CPU
 type Cpu struct {
-	hw *hardware.Hardware
-	acc uint64
-	reg []uint64
+	hw *hardware.Hardware // The hardware struct
+	acc uint64 // The accumulator
+	reg []uint64 // Other registers
 }
 
 // Creates the CPU
