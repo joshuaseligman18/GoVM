@@ -8,6 +8,7 @@ import (
 	"github.com/joshuaseligman/GoVM/pkg/hardware/cpu"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
 	"github.com/joshuaseligman/GoVM/pkg/util"
+	"github.com/joshuaseligman/GoVM/pkg/gui"
 )
 
 func main() {
@@ -28,5 +29,9 @@ func main() {
 	clk := clock.NewClock()
 
 	clk.AddClockListener(cpu)
-	clk.StartClock(500)
+	go clk.StartClock(500)
+
+	guiData := gui.NewGuiData(cpu)
+	
+	gui.CreateGui(guiData)
 }
