@@ -19,10 +19,11 @@ func NewFetchUnit(mem *memory.Memory) *FetchUnit {
 }
 
 // Fetches the instruction from memory
-func (ifu *FetchUnit) FetchInstruction(addr uint) uint32 {
-	ifu.mmu.SetMar(addr)
+func (ifu *FetchUnit) FetchInstruction(addr *uint) *IFIDReg {
+	ifu.mmu.SetMar(*addr)
 	ifu.mmu.CallRead()
-	return ifu.mmu.GetMdr()
+	*addr++
+	return NewIFIDReg(ifu.mmu.GetMdr(), *addr)
 }
 
 // Logs a message

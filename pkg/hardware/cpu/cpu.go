@@ -14,6 +14,7 @@ type Cpu struct {
 	reg []uint64 // Other registers
 	programCounter uint // The address of the current instruction being fetched
 	fetchUnit *FetchUnit // The fetch unit
+	ifidReg *IFIDReg // The register between the fetch and decode units
 }
 
 // Creates the CPU
@@ -24,16 +25,18 @@ func NewCpu(mem *memory.Memory) *Cpu {
 		reg: make([]uint64, 32),
 		programCounter: 0,
 		fetchUnit: NewFetchUnit(mem),
+		ifidReg: NewIFIDReg(0, 0),
 	}
 	return &cpu
 }
 
 // Function that gets called every clock cycle
 func (cpu *Cpu) Pulse() {
-	instr := cpu.fetchUnit.FetchInstruction(cpu.programCounter)
-	cpu.programCounter++
+	fetchOut := cpu.fetchUnit.FetchInstruction(&cpu.programCounter)
+	cpu.ifidReg = fetchOut
+
+	fmt.Println(cpu.ifidReg)
 	fmt.Println(cpu.programCounter)
-	fmt.Println(instr)
 }
 
 // Logs a message
