@@ -13,6 +13,11 @@ func NewCpu() *Cpu {
 	return &cpu
 }
 
+// Function that gets called every clock cycle
+func (cpu *Cpu) Pulse() {
+	cpu.Log("pulse received")
+}
+
 // Logs a message
 func (cpu *Cpu) Log(msg string) {
 	cpu.hw.Log(msg)

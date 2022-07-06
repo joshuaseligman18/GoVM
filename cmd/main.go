@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/joshuaseligman/GoVM/pkg/assembler"
+	"github.com/joshuaseligman/GoVM/pkg/hardware/clock"
+	"github.com/joshuaseligman/GoVM/pkg/hardware/cpu"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
 	"github.com/joshuaseligman/GoVM/pkg/util"
 )
@@ -20,4 +22,11 @@ func main() {
 	ram.Log(util.ConvertToHex(ram.GetMdr(), 8))
 
 	fmt.Printf("%b", assembler.AssembleProgram("test.goas", 0x10000)[:10])
+
+	cpu := cpu.NewCpu()
+
+	clk := clock.NewClock()
+
+	clk.AddClockListener(cpu)
+	clk.StartClock(500)
 }
