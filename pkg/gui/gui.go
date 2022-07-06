@@ -14,6 +14,9 @@ import (
 
 // Struct for the data represented within the GUI
 type GuiData struct {
+	cpu *cpu.Cpu
+	timeLabel *widget.Label
+	curTime *widget.Label
 	accLabel *widget.Label // The label for the accumulator
 	accData *widget.Label // The label for the value stored in the accumulator
 	regLabels []*widget.Label // The labels for the registers
@@ -21,12 +24,15 @@ type GuiData struct {
 }
 
 // Creates the GuiData struct
-func NewGuiData(cpu *cpu.Cpu) *GuiData {
-	guiData := GuiData {}
+func NewGuiData(trackedCpu *cpu.Cpu) *GuiData {
+	guiData := GuiData { cpu: trackedCpu}
+
+	guiData.timeLabel = widget.NewLabel("Time")
+	guiData.curTime = widget.NewLabel("0")
 
 	// Add the ACC labels
 	guiData.accLabel = widget.NewLabel("ACC")
-	guiData.accData = widget.NewLabel(util.ConvertToHex(uint32(0), 16))
+	guiData.accData = widget.NewLabel(util.ConvertToHexUint64(uint64(0), 16))
 
 	// Create the lists of labels for the registers
 	guiData.regLabels = make([]*widget.Label, 32)
@@ -57,10 +63,19 @@ func NewGuiData(cpu *cpu.Cpu) *GuiData {
 		}
 
 		// Initialize registers to 0
-		guiData.regData[i] = widget.NewLabel(util.ConvertToHex(uint32(0), 16))
+		guiData.regData[i] = widget.NewLabel(util.ConvertToHexUint64(uint64(0), 16))
 	}
 
 	return &guiData
+}
+
+// Function that gets called every clock cycle
+func (guiData *GuiData) Pulse() {
+	guiData.curTime.SetText(fmt.Sprintf("%d", util.GetCurrentTime()))
+	guiData.accData.SetText(util.ConvertToHexUint64(guiData.cpu.GetAcc(), 0))
+	for i := 0; i < len (guiData.regData); i++ {
+		guiData.accData.SetText(util.ConvertToHexUint64(guiData.cpu.GetRegisters()[i], 0))
+	}
 }
 
 // Function that initializes and starts the gui
@@ -71,6 +86,9 @@ func CreateGui(guiData *GuiData) {
 
 	// Create the grid and add the labels and data
 	grid := container.New(layout.NewGridLayout(4))
+
+	grid.Add(guiData.timeLabel)
+	grid.Add(guiData.curTime)
 
 	grid.Add(guiData.accLabel)
 	grid.Add(guiData.accData)

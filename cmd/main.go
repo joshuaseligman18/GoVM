@@ -20,7 +20,7 @@ func main() {
 	ram.SetMdr(0x0)
 	ram.SetMar(0x0)
 	ram.Read()
-	ram.Log(util.ConvertToHex(ram.GetMdr(), 8))
+	ram.Log(util.ConvertToHexUint32(ram.GetMdr(), 8))
 
 	fmt.Printf("%b", assembler.AssembleProgram("test.goas", 0x10000)[:10])
 
@@ -29,9 +29,10 @@ func main() {
 	clk := clock.NewClock()
 
 	clk.AddClockListener(cpu)
-	go clk.StartClock(500)
-
-	guiData := gui.NewGuiData(cpu)
 	
+	guiData := gui.NewGuiData(cpu)
+	clk.AddClockListener(guiData)
+	
+	go clk.StartClock(500)
 	gui.CreateGui(guiData)
 }
