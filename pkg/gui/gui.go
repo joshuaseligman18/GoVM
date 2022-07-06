@@ -72,9 +72,9 @@ func NewGuiData(trackedCpu *cpu.Cpu) *GuiData {
 // Function that gets called every clock cycle
 func (guiData *GuiData) Pulse() {
 	guiData.curTime.SetText(fmt.Sprintf("%d", util.GetCurrentTime()))
-	guiData.accData.SetText(util.ConvertToHexUint64(guiData.cpu.GetAcc(), 0))
+	guiData.accData.SetText(util.ConvertToHexUint64(guiData.cpu.GetAcc(), 16))
 	for i := 0; i < len (guiData.regData); i++ {
-		guiData.accData.SetText(util.ConvertToHexUint64(guiData.cpu.GetRegisters()[i], 0))
+		guiData.regData[i].SetText(util.ConvertToHexUint64(guiData.cpu.GetRegisters()[i], 16))
 	}
 }
 
