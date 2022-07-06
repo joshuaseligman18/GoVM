@@ -10,10 +10,10 @@ type FetchUnit struct {
 	mmu *memory.Mmu
 }
 
-func NewFetchUnit() *FetchUnit {
+func NewFetchUnit(mem *memory.Memory) *FetchUnit {
 	fetchUnit := FetchUnit {
 		hw: hardware.NewHardware("IFU", 0),
-		mmu: memory.NewMmu(),
+		mmu: memory.NewMmu(mem),
 	}
 	return &fetchUnit
 }
@@ -23,4 +23,9 @@ func (ifu *FetchUnit) FetchInstruction(addr uint) uint32 {
 	ifu.mmu.SetMar(addr)
 	ifu.mmu.CallRead()
 	return ifu.mmu.GetMdr()
+}
+
+// Logs a message
+func (ifu *FetchUnit) Log(msg string) {
+	ifu.hw.Log(msg)
 }

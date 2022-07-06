@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
+	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
 )
 
 // Struct for the CPU
@@ -16,13 +17,13 @@ type Cpu struct {
 }
 
 // Creates the CPU
-func NewCpu() *Cpu {
+func NewCpu(mem *memory.Memory) *Cpu {
 	cpu := Cpu {
 		hw: hardware.NewHardware("CPU", 0),
 		acc: 0x0,
 		reg: make([]uint64, 32),
 		programCounter: 0,
-		fetchUnit: NewFetchUnit(),
+		fetchUnit: NewFetchUnit(mem),
 	}
 	return &cpu
 }
@@ -31,6 +32,7 @@ func NewCpu() *Cpu {
 func (cpu *Cpu) Pulse() {
 	instr := cpu.fetchUnit.FetchInstruction(cpu.programCounter)
 	cpu.programCounter++
+	fmt.Println(cpu.programCounter)
 	fmt.Println(instr)
 }
 

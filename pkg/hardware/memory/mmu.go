@@ -13,24 +13,24 @@ type Mmu struct {
 }
 
 // Function that creates the MMU
-func NewMmu() *Mmu {
+func NewMmu(mem *Memory) *Mmu {
 	mmu := Mmu {
 		hw: hardware.NewHardware("MMU", 0),
 		mar: 0,
 		mdr: 0,
-		memory: NewMemory(0x10000),
+		memory: mem,
 	}
 	return &mmu
 }
 
 // Sends the signal to memory to read the value in the address of the MAR
 func (mmu *Mmu) CallRead() {
-	mmu.memory.Read()
+	mmu.mdr = mmu.memory.Read(mmu.mar)
 }
 
 // Sends the signal to memory to write the value in the MDR to the address of the MAR
 func (mmu *Mmu) CallWrite() {
-	mmu.memory.Write()
+	mmu.memory.Write(mmu.mar, mmu.mdr)
 }
 
 // Gets the MAR of the MMU

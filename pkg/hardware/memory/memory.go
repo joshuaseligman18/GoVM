@@ -11,8 +11,6 @@ import (
 type Memory struct {
 	hw *hardware.Hardware // The hardware struct
 	ram []uint32 // The RAM
-	mar uint // The memory address register
-	mdr uint32 // The memory data register
 }
 
 // Creates an empty memory struct
@@ -20,8 +18,6 @@ func NewMemory(addressableSpace uint) *Memory {
 	mem := Memory { 
 		hw: hardware.NewHardware("RAM", 0), 
 		ram: make([]uint32, addressableSpace), 
-		mar: 0,
-		mdr: 0,
 	}
 	return &mem
 }
@@ -31,40 +27,18 @@ func NewFlashedMemory(program []uint32) *Memory {
 	mem := Memory {
 		hw: hardware.NewHardware("RAM", 0), 
 		ram: program,
-		mar: 0,
-		mdr: 0,
 	}
 	return &mem
 }
 
 // Sets the MDR to the value stored in memory at the address MAR
-func (mem *Memory) Read() {
-	mem.mdr = mem.ram[mem.mar] 
+func (mem *Memory) Read(addr uint) uint32 {
+	return mem.ram[addr] 
 }
 
 // Writes to RAM based on the current values of MAR and MDR
-func (mem *Memory) Write() {
-	mem.ram[mem.mar] = mem.mdr
-}
-
-// Gets the MAR
-func (mem *Memory) GetMar() uint {
-	return mem.mar
-}
-
-// Gets the MDR
-func (mem *Memory) GetMdr() uint32 {
-	return mem.mdr
-}
-
-// Sets the MAR
-func (mem *Memory) SetMar(newMar uint) {
-	mem.mar = newMar
-}
-
-// Sets the MDR
-func (mem *Memory) SetMdr(newMdr uint32) {
-	mem.mdr = newMdr
+func (mem *Memory) Write(addr uint, data uint32) {
+	mem.ram[addr] = data
 }
 
 // Prints the value stored in the given address
