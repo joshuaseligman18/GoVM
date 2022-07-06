@@ -44,6 +44,11 @@ func (cpu *Cpu) Log(msg string) {
 	cpu.hw.Log(msg)
 }
 
+// Gets the program counter
+func (cpu *Cpu) GetProgramCounter() uint{
+	return cpu.programCounter
+}
+
 // Gets the accumulator
 func (cpu *Cpu) GetAcc() uint64 {
 	return cpu.acc

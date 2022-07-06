@@ -14,9 +14,11 @@ import (
 
 // Struct for the data represented within the GUI
 type GuiData struct {
-	cpu *cpu.Cpu
-	timeLabel *widget.Label
-	curTime *widget.Label
+	cpu *cpu.Cpu // The CPU for making updates
+	timeLabel *widget.Label // The label for the time
+	curTime *widget.Label // The current time
+	pcLabel *widget.Label // The label for the program counter
+	pcData *widget.Label // The label for the value stored in the program counter
 	accLabel *widget.Label // The label for the accumulator
 	accData *widget.Label // The label for the value stored in the accumulator
 	regLabels []*widget.Label // The labels for the registers
@@ -27,8 +29,13 @@ type GuiData struct {
 func NewGuiData(trackedCpu *cpu.Cpu) *GuiData {
 	guiData := GuiData { cpu: trackedCpu}
 
+	// Add the time labels
 	guiData.timeLabel = widget.NewLabel("Time")
 	guiData.curTime = widget.NewLabel("0")
+
+	// Add the PC labels
+	guiData.pcLabel = widget.NewLabel("Program Counter")
+	guiData.pcData = widget.NewLabel(util.ConvertToHexUint64(uint64(0), 8))
 
 	// Add the ACC labels
 	guiData.accLabel = widget.NewLabel("ACC")
@@ -72,6 +79,7 @@ func NewGuiData(trackedCpu *cpu.Cpu) *GuiData {
 // Function that gets called every clock cycle
 func (guiData *GuiData) Pulse() {
 	guiData.curTime.SetText(fmt.Sprintf("%d", util.GetCurrentTime()))
+	guiData.pcData.SetText(util.ConvertToHexUint32(uint32(guiData.cpu.GetProgramCounter()), 8))
 	guiData.accData.SetText(util.ConvertToHexUint64(guiData.cpu.GetAcc(), 16))
 	for i := 0; i < len (guiData.regData); i++ {
 		guiData.regData[i].SetText(util.ConvertToHexUint64(guiData.cpu.GetRegisters()[i], 16))
@@ -85,10 +93,13 @@ func CreateGui(guiData *GuiData) {
 	win := app.NewWindow("GoVM")
 
 	// Create the grid and add the labels and data
-	grid := container.New(layout.NewGridLayout(4))
-
+	grid := container.New(layout.NewGridLayout(6))
+	
 	grid.Add(guiData.timeLabel)
 	grid.Add(guiData.curTime)
+
+	grid.Add(guiData.pcLabel)
+	grid.Add(guiData.pcData)
 
 	grid.Add(guiData.accLabel)
 	grid.Add(guiData.accData)
