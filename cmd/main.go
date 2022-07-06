@@ -1,18 +1,21 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/joshuaseligman/GoVM/pkg/assembler"
+	"github.com/joshuaseligman/GoVM/pkg/gui"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/clock"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/cpu"
-	"github.com/joshuaseligman/GoVM/pkg/gui"
+	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
 )
 
 func main() {
-	fmt.Printf("%b\n", assembler.AssembleProgram("test.goas", 0x10000)[:10])
+	assembledProgram := assembler.AssembleProgram("test.goas", 0x10000)
 
-	cpu := cpu.NewCpu()
+	mem := memory.NewFlashedMemory(assembledProgram)
+
+	mem.MemoryDump(0, 10)
+
+	cpu := cpu.NewCpu(mem)
 
 	clk := clock.NewClock()
 
