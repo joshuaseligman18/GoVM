@@ -31,3 +31,16 @@ func (queue *Queue) Dequeue() {
 		queue.head = queue.head.GetNext()
 	}
 }
+
+// Function that determines if a given value is in the queue
+func (queue *Queue) Contains(val uint) bool {
+	cur := queue.head
+	for cur != nil {
+		if cur.GetVal() == val {
+			return true
+		} else {
+			cur = cur.GetNext()
+		}
+	}
+	return false
+}
