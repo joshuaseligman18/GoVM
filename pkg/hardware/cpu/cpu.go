@@ -3,6 +3,7 @@ package cpu
 import (
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
+	"github.com/joshuaseligman/GoVM/pkg/util"
 )
 
 // Struct for the CPU
@@ -14,6 +15,8 @@ type Cpu struct {
 	fetchUnit *FetchUnit // The fetch unit
 	decodeUnit *DecodeUnit // The decode unit
 	ifidReg *IFIDReg // The register between the fetch and decode units
+
+	regLocks *util.Queue // Manages locks for reading and writing to registers
 }
 
 // Creates the CPU
@@ -24,9 +27,10 @@ func NewCpu(mem *memory.Memory) *Cpu {
 		reg: make([]uint64, 32),
 		programCounter: 0,
 		fetchUnit: NewFetchUnit(mem),
-		decodeUnit: NewDecodeUnit(),
 		ifidReg: NewIFIDReg(0, 0),
+		regLocks: util.NewQueue(),
 	}
+	cpu.decodeUnit = NewDecodeUnit(&cpu)
 	return &cpu
 }
 
@@ -60,4 +64,9 @@ func (cpu *Cpu) GetRegisters() []uint64 {
 // Gets the IFID register
 func (cpu *Cpu) GetIFIDReg() *IFIDReg {
 	return cpu.ifidReg
+}
+
+// Gets the register locks queue
+func (cpu *Cpu) GetRegisterLocks() *util.Queue {
+	return cpu.regLocks
 }

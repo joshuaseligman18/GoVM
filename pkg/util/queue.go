@@ -12,7 +12,7 @@ func NewQueue() *Queue {
 }
 
 // Adds the value to the end of the queue
-func (queue *Queue) Enqueue(val uint) {
+func (queue *Queue) Enqueue(val uint32) {
 	newNode := NewNode(val)
 	if queue.head == nil {
 		queue.head = newNode
@@ -33,7 +33,7 @@ func (queue *Queue) Dequeue() {
 }
 
 // Function that determines if a given value is in the queue
-func (queue *Queue) Contains(val uint) bool {
+func (queue *Queue) Contains(val uint32) bool {
 	cur := queue.head
 	for cur != nil {
 		if cur.GetVal() == val {
