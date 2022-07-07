@@ -90,6 +90,33 @@ func NewGuiData(trackedCpu *cpu.Cpu) *GuiData {
 
 // Function that gets called every clock cycle
 func (guiData *GuiData) Pulse() {
+
+	// Update register labels with locks
+	for i := 0; i < len(guiData.regLabels) - 1; i++ {
+		// Add the special case text for the labels
+		specialReg := ""
+		switch i {
+		case 16:
+			specialReg = " (IP0)"
+		case 17:
+			specialReg = " (IP1)"
+		case 28:
+			specialReg = " (SP)"
+		case 29:
+			specialReg = " (FP)"
+		case 30:
+			specialReg = " (LR)"
+		}
+
+		lockText := " (Lock)"
+
+		if guiData.cpu.GetRegisterLocks().Contains(uint32(i)) {
+			guiData.regLabels[i].SetText(fmt.Sprintf("X%d%s%s", i, specialReg, lockText))
+		} else {
+			guiData.regLabels[i].SetText(fmt.Sprintf("X%d%s", i, specialReg))
+		}
+	}
+
 	// Update the register values
 	guiData.curTime.SetText(fmt.Sprintf("%d", util.GetCurrentTime()))
 	guiData.pcData.SetText(util.ConvertToHexUint32(uint32(guiData.cpu.GetProgramCounter()), 8))

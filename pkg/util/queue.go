@@ -44,3 +44,8 @@ func (queue *Queue) Contains(val uint32) bool {
 	}
 	return false
 }
+
+// Gets the head of the queue
+func (queue *Queue) GetHead() *Node {
+	return queue.head
+}
