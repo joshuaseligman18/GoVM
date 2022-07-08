@@ -1,6 +1,11 @@
 package cpu
 
-import "github.com/joshuaseligman/GoVM/pkg/hardware"
+import (
+	"fmt"
+	"sync"
+
+	"github.com/joshuaseligman/GoVM/pkg/hardware"
+)
 
 // Struct for the ALU
 type Alu struct {
@@ -107,19 +112,45 @@ func (alu *Alu) Multiply(multiplicand uint64, multiplier uint64) []uint64 {
 	productBottom := uint64(0)
 	productTop := uint64(0)
 
+	var wg sync.WaitGroup
+
 	for i := 0; i < 64; i++ {
 		lastMultiplierBit := multiplier & 0b1
 
-		if lastMultiplierBit == 1 {
-			// Add to product
-			
-		}
+		// Make a copy to make sure current values are used
+		mbCopy := multiplicand
+		mtCopy := multiplicandTop
 
+		wg.Add(2)
+
+		// Shift the multiplier and multiplicand
 		go func () {
+			defer wg.Done()
 			multiplier = multiplier >> 1
 			topMultiplicandBit := multiplicand >> 31
 			multiplicand = multiplicand << 1
 			multiplicandTop = multiplicandTop << 1 | topMultiplicandBit
 		}()
+
+		// Do the adds
+		go func() {
+			defer wg.Done()
+			if lastMultiplierBit == 1 {
+				productBottom = alu.Add(mbCopy, productBottom, false)
+				productTop = alu.Add(mtCopy, productTop, true)
+			}
+		}()
+
+		wg.Wait()
+
 	}
+
+	alu.Log(fmt.Sprintf("%X", productBottom))
+
+	return []uint64{productTop, productBottom}
+}
+
+// Logs a message
+func (alu *Alu) Log(msg string) {
+	alu.hw.Log(msg)
 }

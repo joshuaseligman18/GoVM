@@ -60,11 +60,29 @@ func (idexReg *IDEXReg) GetIncrementedPC() uint {
 func (idexReg *IDEXReg) GetRegReadData1() uint64 {
 	return idexReg.regReadData1
 }
+
 // Gets the incremented program counter in the IDEX register
 func (idexReg *IDEXReg) GetRegReadData2() uint64 {
 	return idexReg.regReadData2
 }
+
 // Gets the incremented program counter in the IDEX register
 func (idexReg *IDEXReg) GetSignExtendedImmediate() uint64 {
 	return idexReg.signExtendImm
+}
+
+// Struct for the data passed between the execute and memory units
+type EXMEMReg struct {
+	instr uint32
+	writeVal uint64
+}
+
+// Gets the instruction in the IDEX register
+func (exmemReg *EXMEMReg) GetInstruction() uint32 {
+	return exmemReg.instr
+}
+
+// Gets the value to be written
+func (exmemReg *EXMEMReg) GetWriteVal() uint64 {
+	return exmemReg.writeVal
 }
