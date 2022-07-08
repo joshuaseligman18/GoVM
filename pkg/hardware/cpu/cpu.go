@@ -16,6 +16,7 @@ type Cpu struct {
 	decodeUnit *DecodeUnit // The decode unit
 	executeUnit *ExecuteUnit // The execute unit
 	memDataUnit *MemDataUnit // The memory data unit
+	writebackUnit *WritebackUnit // The writeback unit
 	ifidReg *IFIDReg // The register between the fetch and decode units
 	idexReg *IDEXReg // The register between the decode and execute units
 	exmemReg *EXMEMReg // The register between the execute and memory data units
@@ -38,6 +39,7 @@ func NewCpu(mem *memory.Memory) *Cpu {
 		regLocks: util.NewQueue(),
 	}
 	cpu.decodeUnit = NewDecodeUnit(&cpu)
+	cpu.writebackUnit = NewWritebackUnit(&cpu)
 	return &cpu
 }
 
@@ -49,7 +51,9 @@ func (cpu *Cpu) Pulse() {
 	cpu.idexReg = decodeOut
 	executeOut := cpu.executeUnit.ExecuteInstruction(cpu.idexReg)
 	cpu.exmemReg = executeOut
-	cpu.memDataUnit.HandleMemoryAccess(cpu.exmemReg)
+	memOut := cpu.memDataUnit.HandleMemoryAccess(cpu.exmemReg)
+	cpu.memwbReg = memOut
+	cpu.writebackUnit.HandleWriteback(cpu.memwbReg)
 }
 
 // Logs a message
