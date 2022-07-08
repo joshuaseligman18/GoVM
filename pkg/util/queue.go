@@ -26,10 +26,13 @@ func (queue *Queue) Enqueue(val uint32) {
 }
 
 // Removes the top element from the queue
-func (queue *Queue) Dequeue() {
+func (queue *Queue) Dequeue() uint32 {
 	if queue.head != nil {
+		val := queue.head.GetVal()
 		queue.head = queue.head.GetNext()
+		return val
 	}
+	return 0
 }
 
 // Function that determines if a given value is in the queue
