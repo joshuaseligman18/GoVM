@@ -24,6 +24,7 @@ type GuiData struct {
 	regLabels []*widget.Label // The labels for the registers
 	regData []*widget.Label // The labels for the values stored in the registers
 	ifidLabels []*widget.Label // The labels for the IFID register
+	idexLabels []*widget.Label // The labels for the IDEX register
 }
 
 // Creates the GuiData struct
@@ -76,15 +77,17 @@ func NewGuiData(trackedCpu *cpu.Cpu) *GuiData {
 
 	// Create the IFID labels
 	guiData.ifidLabels = make([]*widget.Label, 2)
-	for i := 0; i < len(guiData.ifidLabels); i++ {
-		switch i {
-		case 0:
-			guiData.ifidLabels[i] = widget.NewLabel(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0, 8)))
-		case 1:
-			guiData.ifidLabels[i] = widget.NewLabel(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(0, 8)))
-		}
-	}
+	guiData.ifidLabels[0] = widget.NewLabel(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0, 8)))
+	guiData.ifidLabels[1] = widget.NewLabel(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(0, 8)))
 
+	// Create the IDEX labels
+	guiData.idexLabels = make([]*widget.Label, 5)
+	guiData.idexLabels[0] = widget.NewLabel(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0, 8)))
+	guiData.idexLabels[1] = widget.NewLabel(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(0, 8)))
+	guiData.idexLabels[2] = widget.NewLabel(fmt.Sprintf("Reg Read Data 1 PC: %s", util.ConvertToHexUint64(0, 16)))
+	guiData.idexLabels[3] = widget.NewLabel(fmt.Sprintf("Reg Read Data 2 PC: %s", util.ConvertToHexUint64(0, 16)))
+	guiData.idexLabels[4] = widget.NewLabel(fmt.Sprintf("Sign Extended Imm: %s", util.ConvertToHexUint64(0, 16)))
+	
 	return &guiData
 }
 
@@ -125,13 +128,22 @@ func (guiData *GuiData) Pulse() {
 		guiData.regData[i].SetText(util.ConvertToHexUint64(guiData.cpu.GetRegisters()[i], 16))
 	}
 	// Update the IFID values
-	for i := 0; i < len(guiData.ifidLabels); i++ {
-		switch i {
-		case 0:
-			guiData.ifidLabels[i].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetIFIDReg().GetInstruction(), 8)))
-		case 1:
-			guiData.ifidLabels[i].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(uint32(guiData.cpu.GetIFIDReg().GetIncrementedPC()), 8)))
-		}
+	guiData.ifidLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetIFIDReg().GetInstruction(), 8)))
+	guiData.ifidLabels[1].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(uint32(guiData.cpu.GetIFIDReg().GetIncrementedPC()), 8)))
+
+	// Update the IDEX values
+	if guiData.cpu.GetIDEXReg() != nil {
+		guiData.idexLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetIDEXReg().GetInstruction(), 8)))
+		guiData.idexLabels[1].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(uint32(guiData.cpu.GetIDEXReg().GetIncrementedPC()), 8)))
+		guiData.idexLabels[2].SetText(fmt.Sprintf("Reg Read Data 1 PC: %s", util.ConvertToHexUint64(guiData.cpu.GetIDEXReg().GetRegReadData1(), 16)))
+		guiData.idexLabels[3].SetText(fmt.Sprintf("Reg Read Data 2 PC: %s", util.ConvertToHexUint64(guiData.cpu.GetIDEXReg().GetRegReadData2(), 16)))
+		guiData.idexLabels[4].SetText(fmt.Sprintf("Sign Extended Imm: %s", util.ConvertToHexUint64(guiData.cpu.GetIDEXReg().GetSignExtendedImmediate(), 16)))
+	} else {
+		guiData.idexLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0, 8)))
+		guiData.idexLabels[1].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(0, 8)))
+		guiData.idexLabels[2].SetText(fmt.Sprintf("Reg Read Data 1 PC: %s", util.ConvertToHexUint64(0, 16)))
+		guiData.idexLabels[3].SetText(fmt.Sprintf("Reg Read Data 2 PC: %s", util.ConvertToHexUint64(0, 16)))
+		guiData.idexLabels[4].SetText(fmt.Sprintf("Sign Extended Imm: %s", util.ConvertToHexUint64(0, 16)))
 	}
 }
 
@@ -165,7 +177,14 @@ func CreateGui(guiData *GuiData) {
 	ifidAccordionItem := widget.NewAccordionItem("IFID Register", ifidTable)
 	ifidAccordionItem.Open = true
 
-	pipelineAccordion := widget.NewAccordion(ifidAccordionItem)
+	idexTable := container.New(layout.NewGridLayout(1))
+	for i := 0; i < len(guiData.idexLabels); i++ {
+		idexTable.Add(guiData.idexLabels[i])
+	}
+	idexAccordionItem := widget.NewAccordionItem("IDEX Register", idexTable)
+	idexAccordionItem.Open = true
+
+	pipelineAccordion := widget.NewAccordion(ifidAccordionItem, idexAccordionItem)
 
 	content := container.NewHSplit(grid, pipelineAccordion)
 

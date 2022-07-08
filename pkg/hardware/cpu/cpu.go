@@ -15,6 +15,7 @@ type Cpu struct {
 	fetchUnit *FetchUnit // The fetch unit
 	decodeUnit *DecodeUnit // The decode unit
 	ifidReg *IFIDReg // The register between the fetch and decode units
+	idexReg *IDEXReg // The register between the decode and execute units
 
 	regLocks *util.Queue // Manages locks for reading and writing to registers
 }
@@ -38,7 +39,8 @@ func NewCpu(mem *memory.Memory) *Cpu {
 func (cpu *Cpu) Pulse() {
 	fetchOut := cpu.fetchUnit.FetchInstruction(&cpu.programCounter)
 	cpu.ifidReg = fetchOut
-	cpu.decodeUnit.DecodeInstruction(cpu.ifidReg)
+	decodeOut := cpu.decodeUnit.DecodeInstruction(cpu.ifidReg)
+	cpu.idexReg = decodeOut
 }
 
 // Logs a message
@@ -64,6 +66,11 @@ func (cpu *Cpu) GetRegisters() []uint64 {
 // Gets the IFID register
 func (cpu *Cpu) GetIFIDReg() *IFIDReg {
 	return cpu.ifidReg
+}
+
+// Gets the IDEX register
+func (cpu *Cpu) GetIDEXReg() *IDEXReg {
+	return cpu.idexReg
 }
 
 // Gets the register locks queue
