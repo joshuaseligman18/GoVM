@@ -23,9 +23,9 @@ func NewDecodeUnit(parentCpu *Cpu) *DecodeUnit {
 
 // Function that decodes an instruction into its operands
 func (idu *DecodeUnit) DecodeInstruction(ifidReg *IFIDReg) *IDEXReg {
-	first9Bits := ifidReg.instr >> 21
-	idu.Log(fmt.Sprintf("%X", first9Bits))
-	switch first9Bits {
+	opcode := ifidReg.instr >> 21
+	idu.Log(fmt.Sprintf("%X", opcode))
+	switch opcode {
 	// IM instructions
 	case 0x694, 0x695, 0x696, 0x697: // MOVZ
 		// Register to write to
