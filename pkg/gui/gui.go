@@ -37,11 +37,11 @@ func NewGuiData(trackedCpu *cpu.Cpu) *GuiData {
 
 	// Add the PC labels
 	guiData.pcLabel = widget.NewLabel("Program Counter")
-	guiData.pcData = widget.NewLabel(util.ConvertToHexUint64(uint64(0), 8))
+	guiData.pcData = widget.NewLabel(util.ConvertToHexUint64(uint64(0)))
 
 	// Add the ACC labels
 	guiData.accLabel = widget.NewLabel("ACC")
-	guiData.accData = widget.NewLabel(util.ConvertToHexUint64(uint64(0), 16))
+	guiData.accData = widget.NewLabel(util.ConvertToHexUint64(uint64(0)))
 
 	// Create the lists of labels for the registers
 	guiData.regLabels = make([]*widget.Label, 32)
@@ -72,21 +72,21 @@ func NewGuiData(trackedCpu *cpu.Cpu) *GuiData {
 		}
 
 		// Initialize registers to 0
-		guiData.regData[i] = widget.NewLabel(util.ConvertToHexUint64(uint64(0), 16))
+		guiData.regData[i] = widget.NewLabel(util.ConvertToHexUint64(uint64(0)))
 	}
 
 	// Create the IFID labels
 	guiData.ifidLabels = make([]*widget.Label, 2)
-	guiData.ifidLabels[0] = widget.NewLabel(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0, 8)))
-	guiData.ifidLabels[1] = widget.NewLabel(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(0, 8)))
+	guiData.ifidLabels[0] = widget.NewLabel(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0)))
+	guiData.ifidLabels[1] = widget.NewLabel(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(0)))
 
 	// Create the IDEX labels
 	guiData.idexLabels = make([]*widget.Label, 5)
-	guiData.idexLabels[0] = widget.NewLabel(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0, 8)))
-	guiData.idexLabels[1] = widget.NewLabel(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(0, 8)))
-	guiData.idexLabels[2] = widget.NewLabel(fmt.Sprintf("Reg Read Data 1 PC: %s", util.ConvertToHexUint64(0, 16)))
-	guiData.idexLabels[3] = widget.NewLabel(fmt.Sprintf("Reg Read Data 2 PC: %s", util.ConvertToHexUint64(0, 16)))
-	guiData.idexLabels[4] = widget.NewLabel(fmt.Sprintf("Sign Extended Imm: %s", util.ConvertToHexUint64(0, 16)))
+	guiData.idexLabels[0] = widget.NewLabel(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0)))
+	guiData.idexLabels[1] = widget.NewLabel(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(0)))
+	guiData.idexLabels[2] = widget.NewLabel(fmt.Sprintf("Reg Read Data 1 PC: %s", util.ConvertToHexUint64(0)))
+	guiData.idexLabels[3] = widget.NewLabel(fmt.Sprintf("Reg Read Data 2 PC: %s", util.ConvertToHexUint64(0)))
+	guiData.idexLabels[4] = widget.NewLabel(fmt.Sprintf("Sign Extended Imm: %s", util.ConvertToHexUint64(0)))
 	
 	return &guiData
 }
@@ -122,28 +122,28 @@ func (guiData *GuiData) Pulse() {
 
 	// Update the register values
 	guiData.curTime.SetText(fmt.Sprintf("%d", util.GetCurrentTime()))
-	guiData.pcData.SetText(util.ConvertToHexUint32(uint32(guiData.cpu.GetProgramCounter()), 8))
-	guiData.accData.SetText(util.ConvertToHexUint64(guiData.cpu.GetAcc(), 16))
+	guiData.pcData.SetText(util.ConvertToHexUint32(uint32(guiData.cpu.GetProgramCounter())))
+	guiData.accData.SetText(util.ConvertToHexUint64(guiData.cpu.GetAcc()))
 	for i := 0; i < len (guiData.regData); i++ {
-		guiData.regData[i].SetText(util.ConvertToHexUint64(guiData.cpu.GetRegisters()[i], 16))
+		guiData.regData[i].SetText(util.ConvertToHexUint64(guiData.cpu.GetRegisters()[i]))
 	}
 	// Update the IFID values
-	guiData.ifidLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetIFIDReg().GetInstruction(), 8)))
-	guiData.ifidLabels[1].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(uint32(guiData.cpu.GetIFIDReg().GetIncrementedPC()), 8)))
+	guiData.ifidLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetIFIDReg().GetInstruction())))
+	guiData.ifidLabels[1].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(uint32(guiData.cpu.GetIFIDReg().GetIncrementedPC()))))
 
 	// Update the IDEX values
 	if guiData.cpu.GetIDEXReg() != nil {
-		guiData.idexLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetIDEXReg().GetInstruction(), 8)))
-		guiData.idexLabels[1].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(uint32(guiData.cpu.GetIDEXReg().GetIncrementedPC()), 8)))
-		guiData.idexLabels[2].SetText(fmt.Sprintf("Reg Read Data 1 PC: %s", util.ConvertToHexUint64(guiData.cpu.GetIDEXReg().GetRegReadData1(), 16)))
-		guiData.idexLabels[3].SetText(fmt.Sprintf("Reg Read Data 2 PC: %s", util.ConvertToHexUint64(guiData.cpu.GetIDEXReg().GetRegReadData2(), 16)))
-		guiData.idexLabels[4].SetText(fmt.Sprintf("Sign Extended Imm: %s", util.ConvertToHexUint64(guiData.cpu.GetIDEXReg().GetSignExtendedImmediate(), 16)))
+		guiData.idexLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetIDEXReg().GetInstruction())))
+		guiData.idexLabels[1].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(uint32(guiData.cpu.GetIDEXReg().GetIncrementedPC()))))
+		guiData.idexLabels[2].SetText(fmt.Sprintf("Reg Read Data 1 PC: %s", util.ConvertToHexUint64(guiData.cpu.GetIDEXReg().GetRegReadData1())))
+		guiData.idexLabels[3].SetText(fmt.Sprintf("Reg Read Data 2 PC: %s", util.ConvertToHexUint64(guiData.cpu.GetIDEXReg().GetRegReadData2())))
+		guiData.idexLabels[4].SetText(fmt.Sprintf("Sign Extended Imm: %s", util.ConvertToHexUint64(guiData.cpu.GetIDEXReg().GetSignExtendedImmediate())))
 	} else {
-		guiData.idexLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0, 8)))
-		guiData.idexLabels[1].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(0, 8)))
-		guiData.idexLabels[2].SetText(fmt.Sprintf("Reg Read Data 1 PC: %s", util.ConvertToHexUint64(0, 16)))
-		guiData.idexLabels[3].SetText(fmt.Sprintf("Reg Read Data 2 PC: %s", util.ConvertToHexUint64(0, 16)))
-		guiData.idexLabels[4].SetText(fmt.Sprintf("Sign Extended Imm: %s", util.ConvertToHexUint64(0, 16)))
+		guiData.idexLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0)))
+		guiData.idexLabels[1].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(0)))
+		guiData.idexLabels[2].SetText(fmt.Sprintf("Reg Read Data 1 PC: %s", util.ConvertToHexUint64(0)))
+		guiData.idexLabels[3].SetText(fmt.Sprintf("Reg Read Data 2 PC: %s", util.ConvertToHexUint64(0)))
+		guiData.idexLabels[4].SetText(fmt.Sprintf("Sign Extended Imm: %s", util.ConvertToHexUint64(0)))
 	}
 }
 
