@@ -1,6 +1,8 @@
 package cpu
 
 import (
+	"fmt"
+
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 	"github.com/joshuaseligman/GoVM/pkg/util"
 )
@@ -46,8 +48,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(idexReg *IDEXReg) *EXMEMReg {
 		// Compute the new register value
 		newReg := idexReg.regReadData1 >> (actualShiftAmt + 16)
 		newReg = newReg << 16 | idexReg.signExtendImm
-		newReg = newReg << actualShiftAmt | (idexReg.regReadData1 & (actualShiftAmt - 1))
-
+		newReg = (newReg << actualShiftAmt) | (idexReg.regReadData1 & (movkBitAndAmountUtil(actualShiftAmt)))
 		exu.Log(util.ConvertToHexUint64(newReg))
 
 		return &EXMEMReg {
@@ -63,3 +64,17 @@ func (exu *ExecuteUnit) ExecuteInstruction(idexReg *IDEXReg) *EXMEMReg {
 func (exu *ExecuteUnit) Log(msg string) {
 	exu.hw.Log(msg)
 }
+
+// Util for determining how many bits to AND from the original value
+func movkBitAndAmountUtil(actShiftAmt uint64) uint64 {
+	if actShiftAmt == 0 {
+		return 0
+	}
+	fmt.Println(actShiftAmt)
+	sum := uint64(0)
+	for i := 0; i < int(actShiftAmt) / 4; i++ {
+		sum = sum << 4 | 0xF
+	}
+	fmt.Printf("%X\n", sum)
+	return sum
+} 

@@ -91,7 +91,7 @@ func instrIM(opcode string, operands []string, fileName string, lineNumber int) 
 	// Get the value to move into the register
 	base := 0
 	cut := 0
-	if operands[1][:3] == "#0x" {
+	if operands[1][:3] == "#0x" { // FIXME Error thrown when user wants base 10 and single digit
 		// Base 16
 		base = 16
 		cut = 3
@@ -101,7 +101,7 @@ func instrIM(opcode string, operands []string, fileName string, lineNumber int) 
 		cut = 1
 	}
 	// Get the value based on the base that was decided earlier
-	val, errConv := strconv.ParseInt(operands[1][cut:], base, 16)
+	val, errConv := strconv.ParseUint(operands[1][cut:], base, 16) // FIXME Figure out why it wont take a 4 digit hex number and why the value may change
 	if errConv == nil {
 		// Add the value to the binary
 		outBin = outBin << 16 | uint32(val)
