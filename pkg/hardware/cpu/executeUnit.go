@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
+	"github.com/joshuaseligman/GoVM/pkg/util"
 )
 
 // Struct for the execute unit
@@ -26,7 +27,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(idexReg *IDEXReg) *EXMEMReg {
 	switch opcode {
 	case 0x694, 0x695, 0x696, 0x697: // MOVZ
 		// Get the shift amount
-		shiftAmt := idexReg.instr & 0b11
+		shiftAmt := opcode & 0b11
 		actualShiftAmt := exu.alu.Multiply(uint64(shiftAmt), 0x10)[1]
 		
 		// Compute the new register value
@@ -36,6 +37,23 @@ func (exu *ExecuteUnit) ExecuteInstruction(idexReg *IDEXReg) *EXMEMReg {
 			instr: idexReg.instr,
 			writeVal: newReg,
 		}
+	
+	case 0x794, 0x795, 0x796, 0x797: // MOVK
+		// Get the shift amount
+		shiftAmt := opcode & 0b11
+		actualShiftAmt := exu.alu.Multiply(uint64(shiftAmt), 0x10)[1]
+
+		// Compute the new register value
+		newReg := idexReg.regReadData1 >> (actualShiftAmt + 16)
+		newReg = newReg << 16 | idexReg.signExtendImm
+		newReg = newReg << actualShiftAmt | (idexReg.regReadData1 & (actualShiftAmt - 1))
+
+		exu.Log(util.ConvertToHexUint64(newReg))
+
+		return &EXMEMReg {
+			instr: idexReg.instr,
+			writeVal: newReg,
+		}		
 	}
 	
 	return nil
