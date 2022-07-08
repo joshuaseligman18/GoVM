@@ -41,8 +41,8 @@ func (idu *DecodeUnit) DecodeInstruction(ifidReg *IFIDReg) *IDEXReg {
 				instr: ifidReg.instr,
 				incrementedPC: ifidReg.incrementedPC,
 				regReadData1: 0,
-				regReadData2: 0, // FIXME Have to pass the shift too
-				signExtendImm: uint64(immediate), // FIXME not currently sign extended
+				regReadData2: 0,
+				signExtendImm: signExtend(immediate),
 			}
 		}
 
@@ -62,4 +62,18 @@ func (idu *DecodeUnit) DecodeInstruction(ifidReg *IFIDReg) *IDEXReg {
 // Logs a message
 func (idu *DecodeUnit) Log(msg string) {
 	idu.hw.Log(msg)
+}
+
+// Sign extends a uint32 to a uint64
+func signExtend(val uint32) uint64 {
+	// Get the sign
+	sign := uint64(val >> 31)
+	longSign := uint64(0)
+	// Repeat it 32 times
+	for i := 0; i < 32; i++ {
+		longSign = longSign << 1 | sign
+	}
+	// Combine the original value with the long sign
+	result := longSign << 32 | uint64(val)
+	return result
 }
