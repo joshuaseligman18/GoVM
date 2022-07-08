@@ -43,7 +43,7 @@ func (mem *Memory) Write(addr uint, data uint32) {
 
 // Prints the value stored in the given address
 func (mem *Memory) PrintMemory(addr uint) {
-	mem.Log(fmt.Sprintf("Addr: %s; Data: %s", util.ConvertToHexUint32(uint32(addr), 8), util.ConvertToHexUint32(mem.ram[addr], 8)))
+	mem.Log(fmt.Sprintf("Addr: %s; Data: %s", util.ConvertToHexUint32(uint32(addr)), util.ConvertToHexUint32(mem.ram[addr])))
 }
 
 // Prints a range of memory addresses
