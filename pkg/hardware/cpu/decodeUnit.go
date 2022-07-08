@@ -37,7 +37,7 @@ func (idu *DecodeUnit) DecodeInstruction(ifidReg *IFIDReg) *IDEXReg {
 			return nil
 		} else {
 			idu.cpu.GetRegisterLocks().Enqueue(regWrite)
-			return & IDEXReg{
+			return &IDEXReg {
 				instr: ifidReg.instr,
 				incrementedPC: ifidReg.incrementedPC,
 				regReadData1: 0,
@@ -46,13 +46,26 @@ func (idu *DecodeUnit) DecodeInstruction(ifidReg *IFIDReg) *IDEXReg {
 			}
 		}
 
-	// case 0x794, 0x795, 0x796, 0x797: // MOVK
-	// 	// Register to write to
-	// 	regWrite := ifidReg.instr & 0x1F
-	// 	// Register to read from
-	// 	regReadData1 := idu.cpu.GetRegisters()[regWrite]
-	// 	// Immediate to write
-	// 	immediate := ifidReg.instr & 0xFFFF >> 5
+	case 0x794, 0x795, 0x796, 0x797: // MOVK
+		// Register to write to
+		regWrite := ifidReg.instr & 0x1F
+		// Register to read from
+		regReadData1 := idu.cpu.GetRegisters()[regWrite]
+		// Immediate to write
+		immediate := ifidReg.instr & 0xFFFF >> 5
+
+		if idu.cpu.GetRegisterLocks().Contains(regWrite) {
+			return nil
+		} else {
+			idu.cpu.GetRegisterLocks().Enqueue(regWrite)
+			return &IDEXReg {
+				instr: ifidReg.instr,
+				incrementedPC: ifidReg.incrementedPC,
+				regReadData1: regReadData1,
+				regReadData2: 0,
+				signExtendImm: signExtend(immediate),
+			}
+		}
 		
 	}
 	
