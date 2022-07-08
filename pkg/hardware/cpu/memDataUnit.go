@@ -15,6 +15,20 @@ func NewMemDataUnit() *MemDataUnit {
 	return &mdu
 }
 
+func (mdu *MemDataUnit) HandleMemoryAccess(exmemReg *EXMEMReg) *MEMWBReg {
+	opcode := exmemReg.instr >> 21
+	switch opcode {
+	// Memory access instructions
+
+	// All other instructions
+	default:
+		return & MEMWBReg{
+			instr: exmemReg.instr,
+			writeVal: exmemReg.writeVal,
+		}
+	}
+}
+
 // Logs a message
 func (mdu *MemDataUnit) Log(msg string) {
 	mdu.hw.Log(msg)
