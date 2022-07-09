@@ -31,7 +31,7 @@ func (idu *DecodeUnit) DecodeInstruction(ifidReg *IFIDReg) *IDEXReg {
 		// Register to write to
 		regWrite := ifidReg.instr & 0x1F
 		// Immediate to write
-		immediate := ifidReg.instr & 0xFFFF >> 5
+		immediate := ifidReg.instr & 0x1FFFFF >> 5
 		
 		if idu.cpu.GetRegisterLocks().Contains(regWrite) {
 			return nil
@@ -42,7 +42,7 @@ func (idu *DecodeUnit) DecodeInstruction(ifidReg *IFIDReg) *IDEXReg {
 				incrementedPC: ifidReg.incrementedPC,
 				regReadData1: 0,
 				regReadData2: 0,
-				signExtendImm: signExtend(immediate),
+				signExtendImm: signExtend(immediate), // Should always be positive
 			}
 		}
 
@@ -52,7 +52,7 @@ func (idu *DecodeUnit) DecodeInstruction(ifidReg *IFIDReg) *IDEXReg {
 		// Register to read from
 		regReadData1 := idu.cpu.GetRegisters()[regWrite]
 		// Immediate to write
-		immediate := ifidReg.instr & 0xFFFF >> 5
+		immediate := ifidReg.instr & 0x1FFFFF >> 5
 
 		if idu.cpu.GetRegisterLocks().Contains(regWrite) {
 			return nil
@@ -63,7 +63,7 @@ func (idu *DecodeUnit) DecodeInstruction(ifidReg *IFIDReg) *IDEXReg {
 				incrementedPC: ifidReg.incrementedPC,
 				regReadData1: regReadData1,
 				regReadData2: 0,
-				signExtendImm: signExtend(immediate),
+				signExtendImm: signExtend(immediate), // Should always be positive
 			}
 		}
 		

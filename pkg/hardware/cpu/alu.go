@@ -1,7 +1,6 @@
 package cpu
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
@@ -144,8 +143,6 @@ func (alu *Alu) Multiply(multiplicand uint64, multiplier uint64) []uint64 {
 		wg.Wait()
 
 	}
-
-	alu.Log(fmt.Sprintf("%X", productBottom))
 
 	return []uint64{productTop, productBottom}
 }

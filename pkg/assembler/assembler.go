@@ -1,12 +1,12 @@
 package assembler
 
 import (
-	"os"
-	"log"
 	"bufio"
-	"strings"
-	"strconv"
 	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"strings"
 )
 
 // Assembles a program into instructions for the computer to read
@@ -101,7 +101,7 @@ func instrIM(opcode string, operands []string, fileName string, lineNumber int) 
 		cut = 1
 	}
 	// Get the value based on the base that was decided earlier
-	val, errConv := strconv.ParseUint(operands[1][cut:], base, 16) // FIXME Figure out why it wont take a 4 digit hex number and why the value may change
+	val, errConv := strconv.ParseUint(operands[1][cut:], base, 16)
 	if errConv == nil {
 		// Add the value to the binary
 		outBin = outBin << 16 | uint32(val)
