@@ -25,6 +25,8 @@ type GuiData struct {
 	regData []*widget.Label // The labels for the values stored in the registers
 	ifidLabels []*widget.Label // The labels for the IFID register
 	idexLabels []*widget.Label // The labels for the IDEX register
+	exmemLablels []*widget.Label // The labels for the EXMEM register
+	memwbLabels [] *widget.Label // The lablels for the MEMWB register
 }
 
 // Creates the GuiData struct
@@ -87,6 +89,11 @@ func NewGuiData(trackedCpu *cpu.Cpu) *GuiData {
 	guiData.idexLabels[2] = widget.NewLabel(fmt.Sprintf("Reg Read Data 1 PC: %s", util.ConvertToHexUint64(0)))
 	guiData.idexLabels[3] = widget.NewLabel(fmt.Sprintf("Reg Read Data 2 PC: %s", util.ConvertToHexUint64(0)))
 	guiData.idexLabels[4] = widget.NewLabel(fmt.Sprintf("Sign Extended Imm: %s", util.ConvertToHexUint64(0)))
+
+	// Create the EXMEM labels
+	guiData.exmemLablels = make([]*widget.Label, 2)
+	guiData.exmemLablels[0] = widget.NewLabel(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0)))
+	guiData.exmemLablels[1] = widget.NewLabel(fmt.Sprintf("Write value: %s", util.ConvertToHexUint64(0)))
 	
 	return &guiData
 }
@@ -145,6 +152,15 @@ func (guiData *GuiData) Pulse() {
 		guiData.idexLabels[3].SetText(fmt.Sprintf("Reg Read Data 2 PC: %s", util.ConvertToHexUint64(0)))
 		guiData.idexLabels[4].SetText(fmt.Sprintf("Sign Extended Imm: %s", util.ConvertToHexUint64(0)))
 	}
+
+	// Update the EXMEM values
+	if guiData.cpu.GetEXMEMReg() != nil {
+		guiData.exmemLablels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetEXMEMReg().GetInstruction())))
+		guiData.exmemLablels[1].SetText(fmt.Sprintf("Write value: %s", util.ConvertToHexUint64(guiData.cpu.GetEXMEMReg().GetWriteVal())))
+	} else {
+		guiData.exmemLablels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0)))
+		guiData.exmemLablels[1].SetText(fmt.Sprintf("Write value: %s", util.ConvertToHexUint64(0)))
+	}
 }
 
 // Function that initializes and starts the gui
@@ -175,16 +191,22 @@ func CreateGui(guiData *GuiData) {
 	ifidTable.Add(guiData.ifidLabels[0])
 	ifidTable.Add(guiData.ifidLabels[1])
 	ifidAccordionItem := widget.NewAccordionItem("IFID Register", ifidTable)
-	ifidAccordionItem.Open = true
 
 	idexTable := container.New(layout.NewGridLayout(1))
 	for i := 0; i < len(guiData.idexLabels); i++ {
 		idexTable.Add(guiData.idexLabels[i])
 	}
 	idexAccordionItem := widget.NewAccordionItem("IDEX Register", idexTable)
-	idexAccordionItem.Open = true
 
-	pipelineAccordion := widget.NewAccordion(ifidAccordionItem, idexAccordionItem)
+	exmemTable := container.New(layout.NewGridLayout(1))
+	for i := 0; i < len(guiData.exmemLablels); i++ {
+		exmemTable.Add(guiData.exmemLablels[i])
+	}
+	exmemAccordionItem := widget.NewAccordionItem("EXMEM Register", exmemTable)
+
+	pipelineAccordion := widget.NewAccordion(ifidAccordionItem, idexAccordionItem, exmemAccordionItem)
+	pipelineAccordion.MultiOpen = true
+	pipelineAccordion.OpenAll()
 
 	content := container.NewHSplit(grid, pipelineAccordion)
 

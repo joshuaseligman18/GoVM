@@ -86,6 +86,16 @@ func (cpu *Cpu) GetIDEXReg() *IDEXReg {
 	return cpu.idexReg
 }
 
+// Gets the EXMEM register
+func (cpu *Cpu) GetEXMEMReg() *EXMEMReg {
+	return cpu.exmemReg
+}
+
+// Gets the MEMWB register
+func (cpu *Cpu) GetMEMWBReg() *MEMWBReg {
+	return cpu.memwbReg
+}
+
 // Gets the register locks queue
 func (cpu *Cpu) GetRegisterLocks() *util.Queue {
 	return cpu.regLocks
