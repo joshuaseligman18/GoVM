@@ -95,6 +95,11 @@ func NewGuiData(trackedCpu *cpu.Cpu) *GuiData {
 	guiData.exmemLablels[0] = widget.NewLabel(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0)))
 	guiData.exmemLablels[1] = widget.NewLabel(fmt.Sprintf("Write value: %s", util.ConvertToHexUint64(0)))
 	
+	// Create the MEMWB labels
+	guiData.memwbLabels = make([]*widget.Label, 2)
+	guiData.memwbLabels[0] = widget.NewLabel(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0)))
+	guiData.memwbLabels[1] = widget.NewLabel(fmt.Sprintf("Write value: %s", util.ConvertToHexUint64(0)))
+
 	return &guiData
 }
 
@@ -161,6 +166,15 @@ func (guiData *GuiData) Pulse() {
 		guiData.exmemLablels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0)))
 		guiData.exmemLablels[1].SetText(fmt.Sprintf("Write value: %s", util.ConvertToHexUint64(0)))
 	}
+
+	// Update the MEMWB values
+	if guiData.cpu.GetMEMWBReg() != nil {
+		guiData.memwbLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetMEMWBReg().GetInstruction())))
+		guiData.memwbLabels[1].SetText(fmt.Sprintf("Write value: %s", util.ConvertToHexUint64(guiData.cpu.GetMEMWBReg().GetWriteVal())))
+	} else {
+		guiData.memwbLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0)))
+		guiData.memwbLabels[1].SetText(fmt.Sprintf("Write value: %s", util.ConvertToHexUint64(0)))
+	}
 }
 
 // Function that initializes and starts the gui
@@ -204,7 +218,13 @@ func CreateGui(guiData *GuiData) {
 	}
 	exmemAccordionItem := widget.NewAccordionItem("EXMEM Register", exmemTable)
 
-	pipelineAccordion := widget.NewAccordion(ifidAccordionItem, idexAccordionItem, exmemAccordionItem)
+	memwbTable := container.New(layout.NewGridLayout(1))
+	for i := 0; i < len(guiData.memwbLabels); i++ {
+		memwbTable.Add(guiData.memwbLabels[i])
+	}
+	memwbAccordionItem := widget.NewAccordionItem("MEMWB Register", memwbTable)
+
+	pipelineAccordion := widget.NewAccordion(ifidAccordionItem, idexAccordionItem, exmemAccordionItem, memwbAccordionItem)
 	pipelineAccordion.MultiOpen = true
 	pipelineAccordion.OpenAll()
 
