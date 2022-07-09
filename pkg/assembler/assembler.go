@@ -91,7 +91,7 @@ func instrIM(opcode string, operands []string, fileName string, lineNumber int) 
 	// Get the value to move into the register
 	base := 0
 	cut := 0
-	if operands[1][:3] == "#0x" { // FIXME Error thrown when user wants base 10 and single digit
+	if len(operands[1]) >= 4 && operands[1][:3] == "#0x" {
 		// Base 16
 		base = 16
 		cut = 3
