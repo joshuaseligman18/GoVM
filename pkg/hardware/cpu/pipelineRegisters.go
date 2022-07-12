@@ -6,15 +6,6 @@ type IFIDReg struct {
 	incrementedPC uint // The incremented program counter
 }
 
-// Function to create the IFID register
-func NewIFIDReg(instruction uint32, pc uint) *IFIDReg {
-	reg := IFIDReg {
-		instr: instruction,
-		incrementedPC: pc,
-	}
-	return &reg
-}
-
 // Gets the instruction in the IFID register
 func (ifidReg *IFIDReg) GetInstruction() uint32 {
 	return ifidReg.instr
@@ -32,18 +23,6 @@ type IDEXReg struct {
 	regReadData1 uint64 // The data in the first read register
 	regReadData2 uint64 // The data in the second read register
 	signExtendImm uint64 // The sign extended immediate
-}
-
-// Function to create the IDEX register
-func NewIDEXReg(instruction uint32, pc uint, reg1 uint64, reg2, uint64, imm uint64) *IDEXReg {
-	reg := IDEXReg {
-		instr: instruction,
-		incrementedPC: pc,
-		regReadData1: reg1,
-		regReadData2: reg2,
-		signExtendImm: imm,
-	}
-	return &reg
 }
 
 // Gets the instruction in the IDEX register

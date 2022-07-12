@@ -35,7 +35,7 @@ func NewCpu(mem *memory.Memory) *Cpu {
 		fetchUnit: NewFetchUnit(mem),
 		executeUnit: NewExecuteUnit(),
 		memDataUnit: NewMemDataUnit(),
-		ifidReg: NewIFIDReg(0, 0),
+		
 		regLocks: util.NewQueue(),
 	}
 	cpu.decodeUnit = NewDecodeUnit(&cpu)
@@ -45,6 +45,7 @@ func NewCpu(mem *memory.Memory) *Cpu {
 
 // Function that gets called every clock cycle
 func (cpu *Cpu) Pulse() {
+	// TODO Build a working pipeline
 	fetchOut := cpu.fetchUnit.FetchInstruction(&cpu.programCounter)
 	cpu.ifidReg = fetchOut
 	decodeOut := cpu.decodeUnit.DecodeInstruction(cpu.ifidReg)

@@ -23,7 +23,10 @@ func (ifu *FetchUnit) FetchInstruction(addr *uint) *IFIDReg {
 	ifu.mmu.SetMar(*addr)
 	ifu.mmu.CallRead()
 	*addr++
-	return NewIFIDReg(ifu.mmu.GetMdr(), *addr)
+	return & IFIDReg{
+		instr: ifu.mmu.GetMdr(), 
+		incrementedPC: *addr,
+	}
 }
 
 // Logs a message
