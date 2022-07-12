@@ -50,14 +50,15 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 	case 0x794, 0x795, 0x796, 0x797: // MOVK
 		// Register to write to
 		regWrite := ifidReg.instr & 0x1F
+
+		// Wait until the updated value is written
+		for idu.cpu.GetRegisterLocks().Contains(regWrite) {
+			continue
+		}
 		// Register to read from
 		regReadData1 := idu.cpu.GetRegisters()[regWrite]
 		// Immediate to write
 		immediate := ifidReg.instr & 0x1FFFFF >> 5
-
-		for idu.cpu.GetRegisterLocks().Contains(regWrite) {
-			continue
-		}
 		
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 		out <- &IDEXReg {
@@ -67,7 +68,6 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 			regReadData2: 0,
 			signExtendImm: signExtend(immediate), // Should always be positive
 		}
-		
 	}
 }
 

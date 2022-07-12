@@ -45,6 +45,8 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 		shiftAmt := opcode & 0b11
 		actualShiftAmt := exu.alu.Multiply(uint64(shiftAmt), 0x10)[1]
 
+		exu.Log(fmt.Sprintf("Old register: %s", util.ConvertToHexUint64(idexReg.regReadData1)))
+
 		// Compute the new register value
 		newReg := idexReg.regReadData1 >> (actualShiftAmt + 16)
 		newReg = newReg << 16 | idexReg.signExtendImm
