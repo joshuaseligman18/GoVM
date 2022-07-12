@@ -24,6 +24,7 @@ func (mdu *MemDataUnit) HandleMemoryAccess(out chan *MEMWBReg, exmemReg *EXMEMRe
 	default:
 		out <- &MEMWBReg {
 			instr: exmemReg.instr,
+			incrementedPC: exmemReg.incrementedPC,
 			writeVal: exmemReg.writeVal,
 		}
 	}

@@ -1,6 +1,8 @@
 package cpu
 
 import (
+	"fmt"
+
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 	"github.com/joshuaseligman/GoVM/pkg/util"
 )
@@ -47,10 +49,11 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 		newReg := idexReg.regReadData1 >> (actualShiftAmt + 16)
 		newReg = newReg << 16 | idexReg.signExtendImm
 		newReg = (newReg << actualShiftAmt) | (idexReg.regReadData1 & (movkBitAndAmountUtil(actualShiftAmt)))
-		exu.Log(util.ConvertToHexUint64(newReg))
+		exu.Log(fmt.Sprintf("New register: %s", util.ConvertToHexUint64(newReg)))
 
 		out <- &EXMEMReg {
 			instr: idexReg.instr,
+			incrementedPC: idexReg.incrementedPC,
 			writeVal: newReg,
 		}		
 	}

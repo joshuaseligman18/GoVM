@@ -53,12 +53,18 @@ func (idexReg *IDEXReg) GetSignExtendedImmediate() uint64 {
 // Struct for the data passed between the execute and memory units
 type EXMEMReg struct {
 	instr uint32 // The instruction
+	incrementedPC uint // The incremented program counter
 	writeVal uint64 // The value to write
 }
 
 // Gets the instruction in the IDEX register
 func (exmemReg *EXMEMReg) GetInstruction() uint32 {
 	return exmemReg.instr
+}
+
+// Gets the incremented program counter in the IDEX register
+func (exmemReg *EXMEMReg) GetIncrementedPC() uint {
+	return exmemReg.incrementedPC
 }
 
 // Gets the value to be written
@@ -69,12 +75,18 @@ func (exmemReg *EXMEMReg) GetWriteVal() uint64 {
 // Struct for the data passed between the execute and memory units
 type MEMWBReg struct {
 	instr uint32 // The instruction
+	incrementedPC uint // The incremented program counter
 	writeVal uint64 // The value to write
 }
 
 // Gets the instruction in the IDEX register
 func (memwbReg *MEMWBReg) GetInstruction() uint32 {
 	return memwbReg.instr
+}
+
+// Gets the incremented program counter in the IDEX register
+func (memwbReg *MEMWBReg) GetIncrementedPC() uint {
+	return memwbReg.incrementedPC
 }
 
 // Gets the value to be written
