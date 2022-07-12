@@ -15,14 +15,14 @@ func NewMemDataUnit() *MemDataUnit {
 	return &mdu
 }
 
-func (mdu *MemDataUnit) HandleMemoryAccess(exmemReg *EXMEMReg) *MEMWBReg {
+func (mdu *MemDataUnit) HandleMemoryAccess(out chan *MEMWBReg, exmemReg *EXMEMReg) {
 	opcode := exmemReg.instr >> 21
 	switch opcode {
 	// Memory access instructions
 
 	// All other instructions
 	default:
-		return & MEMWBReg{
+		out <- &MEMWBReg {
 			instr: exmemReg.instr,
 			writeVal: exmemReg.writeVal,
 		}

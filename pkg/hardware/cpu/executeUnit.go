@@ -21,7 +21,7 @@ func NewExecuteUnit() *ExecuteUnit {
 }
 
 // Function to execute the given instruction
-func (exu *ExecuteUnit) ExecuteInstruction(idexReg *IDEXReg) *EXMEMReg {
+func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg) {
 	opcode := idexReg.instr >> 21
 
 	switch opcode {
@@ -33,7 +33,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(idexReg *IDEXReg) *EXMEMReg {
 		// Compute the new register value
 		newReg := idexReg.signExtendImm << actualShiftAmt
 
-		return &EXMEMReg {
+		out <- &EXMEMReg {
 			instr: idexReg.instr,
 			writeVal: newReg,
 		}
@@ -49,13 +49,11 @@ func (exu *ExecuteUnit) ExecuteInstruction(idexReg *IDEXReg) *EXMEMReg {
 		newReg = (newReg << actualShiftAmt) | (idexReg.regReadData1 & (movkBitAndAmountUtil(actualShiftAmt)))
 		exu.Log(util.ConvertToHexUint64(newReg))
 
-		return &EXMEMReg {
+		out <- &EXMEMReg {
 			instr: idexReg.instr,
 			writeVal: newReg,
 		}		
 	}
-	
-	return nil
 }
 
 // Logs a message

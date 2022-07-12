@@ -18,7 +18,7 @@ func NewWritebackUnit(parentCpu *Cpu) *WritebackUnit {
 }
 
 // Function for handling the writeback
-func (wbu *WritebackUnit) HandleWriteback(memwbReg *MEMWBReg) {
+func (wbu *WritebackUnit) HandleWriteback(out chan bool, memwbReg *MEMWBReg) {
 	opcode := memwbReg.instr >> 21
 
 	switch opcode {
@@ -27,4 +27,6 @@ func (wbu *WritebackUnit) HandleWriteback(memwbReg *MEMWBReg) {
 		reg := wbu.cpu.GetRegisterLocks().Dequeue()
 		wbu.cpu.GetRegisters()[reg] = memwbReg.writeVal
 	}
+
+	out <- true
 }

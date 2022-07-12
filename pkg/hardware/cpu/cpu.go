@@ -21,7 +21,11 @@ type Cpu struct {
 	idexReg *IDEXReg // The register between the decode and execute units
 	exmemReg *EXMEMReg // The register between the execute and memory data units
 	memwbReg *MEMWBReg // The register between the memory data and writeback units
-
+	ifidChan chan *IFIDReg // The channel to manage async communication between fetch and decode units
+	idexChan chan *IDEXReg // The channel to manage async communication between decode and execute units
+	exmemChan chan *EXMEMReg // The channel to manage async communication between execute and memory data units
+	memwbChan chan *MEMWBReg // The channel to manage async communication between memory data and writeback units
+	endInstrChan chan bool // The channel to manage async communication for the end of the instruction
 	regLocks *util.Queue // Manages locks for reading and writing to registers
 }
 
@@ -35,7 +39,11 @@ func NewCpu(mem *memory.Memory) *Cpu {
 		fetchUnit: NewFetchUnit(mem),
 		executeUnit: NewExecuteUnit(),
 		memDataUnit: NewMemDataUnit(),
-		
+		ifidChan: make(chan *IFIDReg, 1),
+		idexChan: make(chan *IDEXReg, 1),
+		exmemChan: make(chan *EXMEMReg, 1),
+		memwbChan: make(chan *MEMWBReg, 1),
+		endInstrChan: make(chan bool, 1),
 		regLocks: util.NewQueue(),
 	}
 	cpu.decodeUnit = NewDecodeUnit(&cpu)
@@ -45,16 +53,44 @@ func NewCpu(mem *memory.Memory) *Cpu {
 
 // Function that gets called every clock cycle
 func (cpu *Cpu) Pulse() {
-	// TODO Build a working pipeline
-	fetchOut := cpu.fetchUnit.FetchInstruction(&cpu.programCounter)
-	cpu.ifidReg = fetchOut
-	decodeOut := cpu.decodeUnit.DecodeInstruction(cpu.ifidReg)
-	cpu.idexReg = decodeOut
-	executeOut := cpu.executeUnit.ExecuteInstruction(cpu.idexReg)
-	cpu.exmemReg = executeOut
-	memOut := cpu.memDataUnit.HandleMemoryAccess(cpu.exmemReg)
-	cpu.memwbReg = memOut
-	cpu.writebackUnit.HandleWriteback(cpu.memwbReg)
+	// Clear the writeback unit
+	if len(cpu.endInstrChan) == 1 {
+		<- cpu.endInstrChan
+	}
+
+	// Clear the mem data unit and writeback next instruction if available
+	if len(cpu.endInstrChan) == 0 && len(cpu.memwbChan) == 1 {
+		cpu.Log("Starting writeback")
+		cpu.memwbReg = <- cpu.memwbChan
+		go cpu.writebackUnit.HandleWriteback(cpu.endInstrChan, cpu.memwbReg)
+	}
+
+	// Clear the execute unit and handle memory if available
+	if len(cpu.memwbChan) == 0 && len(cpu.exmemChan) == 1 {
+		cpu.Log("Starting mem data access")
+		cpu.exmemReg = <- cpu.exmemChan
+		go cpu.memDataUnit.HandleMemoryAccess(cpu.memwbChan, cpu.exmemReg)
+	}
+
+	// Clear decode unit and execute if available
+	if len(cpu.exmemChan) == 0 && len(cpu.idexChan) == 1 {
+		cpu.Log("Starting execute")
+		cpu.idexReg = <- cpu.idexChan
+		go cpu.executeUnit.ExecuteInstruction(cpu.exmemChan, cpu.idexReg)
+	}
+
+	// Clear the fetch unit and decode if available
+	if len(cpu.idexChan) == 0 && len(cpu.ifidChan) == 1 {
+		cpu.Log("Starting decode")
+		cpu.ifidReg = <- cpu.ifidChan
+		go cpu.decodeUnit.DecodeInstruction(cpu.idexChan, cpu.ifidReg)
+	}
+
+	// Fetch if available
+	if len(cpu.ifidChan) == 0 {
+		cpu.Log("Starting fetch")
+		go cpu.fetchUnit.FetchInstruction(cpu.ifidChan, &cpu.programCounter)
+	}
 }
 
 // Logs a message

@@ -139,9 +139,15 @@ func (guiData *GuiData) Pulse() {
 	for i := 0; i < len (guiData.regData); i++ {
 		guiData.regData[i].SetText(util.ConvertToHexUint64(guiData.cpu.GetRegisters()[i]))
 	}
+
 	// Update the IFID values
-	guiData.ifidLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetIFIDReg().GetInstruction())))
-	guiData.ifidLabels[1].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(uint32(guiData.cpu.GetIFIDReg().GetIncrementedPC()))))
+	if guiData.cpu.GetIDEXReg() != nil {
+		guiData.ifidLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetIFIDReg().GetInstruction())))
+		guiData.ifidLabels[1].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(uint32(guiData.cpu.GetIFIDReg().GetIncrementedPC()))))
+	} else {
+		guiData.ifidLabels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0)))
+		guiData.ifidLabels[1].SetText(fmt.Sprintf("Incremented PC: %s", util.ConvertToHexUint32(0)))
+	}
 
 	// Update the IDEX values
 	if guiData.cpu.GetIDEXReg() != nil {

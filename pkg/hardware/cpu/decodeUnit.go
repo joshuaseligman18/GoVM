@@ -22,7 +22,7 @@ func NewDecodeUnit(parentCpu *Cpu) *DecodeUnit {
 }
 
 // Function that decodes an instruction into its operands
-func (idu *DecodeUnit) DecodeInstruction(ifidReg *IFIDReg) *IDEXReg {
+func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 	opcode := ifidReg.instr >> 21
 	idu.Log(fmt.Sprintf("%X", opcode))
 	switch opcode {
@@ -33,17 +33,18 @@ func (idu *DecodeUnit) DecodeInstruction(ifidReg *IFIDReg) *IDEXReg {
 		// Immediate to write
 		immediate := ifidReg.instr & 0x1FFFFF >> 5
 		
-		if idu.cpu.GetRegisterLocks().Contains(regWrite) {
-			return nil
-		} else {
-			idu.cpu.GetRegisterLocks().Enqueue(regWrite)
-			return &IDEXReg {
-				instr: ifidReg.instr,
-				incrementedPC: ifidReg.incrementedPC,
-				regReadData1: 0,
-				regReadData2: 0,
-				signExtendImm: signExtend(immediate), // Should always be positive
-			}
+		// Wait until register opens up
+		for idu.cpu.GetRegisterLocks().Contains(regWrite) {
+			continue
+		}
+
+		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
+		out <- &IDEXReg {
+			instr: ifidReg.instr,
+			incrementedPC: ifidReg.incrementedPC,
+			regReadData1: 0,
+			regReadData2: 0,
+			signExtendImm: signExtend(immediate), // Should always be positive
 		}
 
 	case 0x794, 0x795, 0x796, 0x797: // MOVK
@@ -54,22 +55,20 @@ func (idu *DecodeUnit) DecodeInstruction(ifidReg *IFIDReg) *IDEXReg {
 		// Immediate to write
 		immediate := ifidReg.instr & 0x1FFFFF >> 5
 
-		if idu.cpu.GetRegisterLocks().Contains(regWrite) {
-			return nil
-		} else {
-			idu.cpu.GetRegisterLocks().Enqueue(regWrite)
-			return &IDEXReg {
-				instr: ifidReg.instr,
-				incrementedPC: ifidReg.incrementedPC,
-				regReadData1: regReadData1,
-				regReadData2: 0,
-				signExtendImm: signExtend(immediate), // Should always be positive
-			}
+		for idu.cpu.GetRegisterLocks().Contains(regWrite) {
+			continue
+		}
+		
+		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
+		out <- &IDEXReg {
+			instr: ifidReg.instr,
+			incrementedPC: ifidReg.incrementedPC,
+			regReadData1: regReadData1,
+			regReadData2: 0,
+			signExtendImm: signExtend(immediate), // Should always be positive
 		}
 		
 	}
-	
-	return nil
 }
 
 // Logs a message
