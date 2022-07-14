@@ -68,6 +68,31 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 			regReadData2: 0,
 			signExtendImm: signExtend(immediate), // Should always be positive
 		}
+
+	case 0x458: // ADD
+		// Registers to read from
+		reg1 := ifidReg.instr & 0x1FFFFF >> 16
+		reg2 := ifidReg.instr & 0x3FF >> 5
+		
+		// Wait until the registers have the most up-to-date data
+		for idu.cpu.GetRegisterLocks().Contains(reg1) || idu.cpu.GetRegisterLocks().Contains(reg2){
+			continue
+		}
+
+		regData1 := idu.cpu.GetRegisters()[reg1]
+		regData2 := idu.cpu.GetRegisters()[reg2]
+
+		// Add the write register to the queue
+		regWrite := ifidReg.instr & 0x1F
+		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
+
+		out <- &IDEXReg {
+			instr: ifidReg.instr,
+			incrementedPC: ifidReg.incrementedPC,
+			regReadData1: regData1,
+			regReadData2: regData2,
+			signExtendImm: 0,
+		}
 	}
 }
 
