@@ -35,6 +35,10 @@ func NewAlu() *Alu {
 
 // Function that adds 2 numbers
 func (alu *Alu) Add(num1 uint64, num2 uint64, useCarry bool) uint64 {
+	// Grab the initial signs for overflow check
+	num1Sign := num1 >> 63
+	num2Sign := num2 >> 63
+
 	// Initialize the sum and carry
 	sum := uint64(0)
 	carry := uint64(0)
@@ -61,7 +65,7 @@ func (alu *Alu) Add(num1 uint64, num2 uint64, useCarry bool) uint64 {
 	// Update the flags
 	alu.negativeFlag = ((sum >> 63) == 1)
 	alu.zeroFlag = (sum == 0)
-	if num1 >> 63 == num2 >> 63 && alu.negativeFlag != (num1 >> 63 == 1) {
+	if num1Sign == num2Sign && alu.negativeFlag == (num1Sign == 1) {
 		alu.overflowFlag = true
 	} else {
 		alu.overflowFlag = false

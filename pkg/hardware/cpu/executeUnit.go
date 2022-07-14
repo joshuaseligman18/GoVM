@@ -70,6 +70,8 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			exu.alu.ClearFlags()
 		}
 
+		fmt.Println(exu.alu)
+
 		exu.Log(fmt.Sprintf("Sum: %s", util.ConvertToHexUint64(output)))
 
 		out <- &EXMEMReg {
