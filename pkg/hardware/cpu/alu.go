@@ -59,11 +59,14 @@ func (alu *Alu) Add(num1 uint64, num2 uint64, useCarry bool) uint64 {
 	}
 
 	// Update the flags
-	alu.zeroFlag = sum == 0
+	alu.negativeFlag = ((sum >> 63) == 1)
+	alu.zeroFlag = (sum == 0)
 	if carry == 0 {
 		alu.carryFlag = false
+		alu.overflowFlag = false
 	} else {
 		alu.carryFlag = true
+		alu.overflowFlag = true
 	}
 
 	return sum
@@ -72,14 +75,14 @@ func (alu *Alu) Add(num1 uint64, num2 uint64, useCarry bool) uint64 {
 // Function that performs the tasks of a full adder
 func (alu *Alu) fullAdder(bit1 uint64, bit2 uint64, carry uint64) adderOutput {
 	// Add the two original bits
-	first := alu.halfAdder(bit1, bit2);
+	first := alu.halfAdder(bit1, bit2)
 	
 	// Add the first sum with the carry input
-	second := alu.halfAdder(first.sum, carry);
+	second := alu.halfAdder(first.sum, carry)
 
 	// Return the result
-	sumOut := second.sum;
-	carryOut := first.carry | second.carry;
+	sumOut := second.sum
+	carryOut := first.carry | second.carry
 	out := adderOutput {
 		sum: sumOut,
 		carry: carryOut,
@@ -90,10 +93,10 @@ func (alu *Alu) fullAdder(bit1 uint64, bit2 uint64, carry uint64) adderOutput {
 // Function that represents a half adder
 func (alu *Alu) halfAdder(bit1 uint64, bit2 uint64) adderOutput {
 	// Sum is XOR of the bits
-	sumOut := bit1 ^ bit2;
+	sumOut := bit1 ^ bit2
 	
 	// Carry is the AND of the bits
-	carryOut := bit1 & bit2;
+	carryOut := bit1 & bit2
 
 	// Return the result
 	out := adderOutput {
@@ -145,6 +148,14 @@ func (alu *Alu) Multiply(multiplicand uint64, multiplier uint64) []uint64 {
 	}
 
 	return []uint64{productTop, productBottom}
+}
+
+// Clears the flags of the ALU
+func (alu *Alu) ClearFlags() {
+	alu.negativeFlag = false
+	alu.zeroFlag = false
+	alu.overflowFlag = false
+	alu.carryFlag = false
 }
 
 // Logs a message
