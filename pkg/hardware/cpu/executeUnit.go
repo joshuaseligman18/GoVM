@@ -38,6 +38,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 
 		out <- &EXMEMReg {
 			instr: idexReg.instr,
+			incrementedPC: idexReg.incrementedPC,
 			writeVal: newReg,
 		}
 	
@@ -61,9 +62,13 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			writeVal: newReg,
 		}
 	
-	case 0x458: // ADD
+	case 0x458, 0x558: // ADD, ADDS
 		output := exu.alu.Add(idexReg.regReadData1, idexReg.regReadData2, false)
-		exu.alu.ClearFlags()
+
+		// Clear flags if ADD
+		if opcode == 0x458 {
+			exu.alu.ClearFlags()
+		}
 
 		exu.Log(fmt.Sprintf("Sum: %s", util.ConvertToHexUint64(output)))
 

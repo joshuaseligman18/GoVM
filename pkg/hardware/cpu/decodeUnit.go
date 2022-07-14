@@ -69,7 +69,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 			signExtendImm: signExtend(immediate), // Should always be positive
 		}
 
-	case 0x458: // ADD
+	case 0x458, 0x558: // ADD, ADDS
 		// Registers to read from
 		reg1 := ifidReg.instr & 0x1FFFFF >> 16
 		reg2 := ifidReg.instr & 0x3FF >> 5

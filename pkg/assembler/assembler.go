@@ -48,7 +48,7 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		// IM instructions
 		case "MOVZ", "MOVK":
 			instrBin = instrIM(opcode, operands, filePath, instrIndex + 1)
-		case "ADD":
+		case "ADD", "ADDS":
 			instrBin = instrR(opcode, operands, filePath, instrIndex + 1)
 		}
 
@@ -146,7 +146,7 @@ func instrIM(opcode string, operands []string, fileName string, lineNumber int) 
 func instrR(opcode string, operands []string, fileName string, lineNumber int) uint32 {
 	// Make sure we have the right number of operands
 	switch opcode {
-	case "ADD":
+	case "ADD", "ADDS":
 		if len(operands) != 3 {
 			errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
 			log.Fatal(errMsg)
@@ -159,11 +159,13 @@ func instrR(opcode string, operands []string, fileName string, lineNumber int) u
 	switch opcode {
 	case "ADD":
 		outBin = 0b10001011000
+	case "ADDS":
+		outBin = 0b10101011000
 	}
 
 	// Generate the remaining binary based on the instruction
 	switch opcode {
-	case "ADD":
+	case "ADD", "ADDS":
 		// Get the first register for the operation
 		reg, errConv := strconv.ParseInt(operands[1][1:], 10, 0)
 		if errConv != nil {
