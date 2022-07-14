@@ -31,6 +31,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 		// Get the shift amount
 		shiftAmt := opcode & 0b11
 		actualShiftAmt := exu.alu.Multiply(uint64(shiftAmt), 0x10)[1]
+		exu.alu.ClearFlags()
 		
 		// Compute the new register value
 		newReg := idexReg.signExtendImm << actualShiftAmt
@@ -44,6 +45,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 		// Get the shift amount
 		shiftAmt := opcode & 0b11
 		actualShiftAmt := exu.alu.Multiply(uint64(shiftAmt), 0x10)[1]
+		exu.alu.ClearFlags()
 
 		exu.Log(fmt.Sprintf("Old register: %s", util.ConvertToHexUint64(idexReg.regReadData1)))
 
@@ -57,7 +59,19 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			instr: idexReg.instr,
 			incrementedPC: idexReg.incrementedPC,
 			writeVal: newReg,
-		}		
+		}
+	
+	case 0x458: // ADD
+		output := exu.alu.Add(idexReg.regReadData1, idexReg.regReadData2, false)
+		exu.alu.ClearFlags()
+
+		exu.Log(fmt.Sprintf("Sum: %s", util.ConvertToHexUint64(output)))
+
+		out <- &EXMEMReg {
+			instr: idexReg.instr,
+			incrementedPC: idexReg.incrementedPC,
+			writeVal: output,
+		}
 	}
 }
 
