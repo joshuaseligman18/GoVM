@@ -50,6 +50,8 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 			instrBin = instrIM(opcode, operands, filePath, instrIndex + 1)
 		case "ADD", "ADDS":
 			instrBin = instrR(opcode, operands, filePath, instrIndex + 1)
+		case "ADDI":
+			instrBin = instrI(opcode, operands, filePath, instrIndex + 1)
 		}
 
 		// Add the instruction to the program
@@ -186,6 +188,96 @@ func instrR(opcode string, operands []string, fileName string, lineNumber int) u
 
 		// Get the second register for the operation
 		reg, errConv = strconv.ParseInt(operands[2][1:], 10, 0)
+		if errConv != nil {
+			// Bad value error
+			errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
+			log.Fatal(errMsg)
+		} else if reg < 0 || reg > 30 {
+			// Invalid register error
+			errMsg := fmt.Sprintf("Bad register value: Register must be between 0 and 30 (inclusive); File: %s; Line: %d", fileName, lineNumber)
+			log.Fatal(errMsg)
+		} else {
+			// Add the register to the binary
+			outBin = outBin << 5 | uint32(reg)
+		}
+
+		// Get the destination register for the operation
+		reg, errConv = strconv.ParseInt(operands[0][1:], 10, 0)
+		if errConv != nil {
+			// Bad value error
+			errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
+			log.Fatal(errMsg)
+		} else if reg < 0 || reg > 30 {
+			// Invalid register error
+			errMsg := fmt.Sprintf("Bad register value: Register must be between 0 and 30 (inclusive); File: %s; Line: %d", fileName, lineNumber)
+			log.Fatal(errMsg)
+		} else {
+			// Add the register to the binary
+			outBin = outBin << 5 | uint32(reg)
+		}
+	}
+
+	// Return the instruction binary
+	return outBin
+}
+
+// Generates the binary for I instructions
+func instrI(opcode string, operands []string, fileName string, lineNumber int) uint32 {
+	// Make sure we have the right number of operands
+	switch opcode {
+	case "ADDI":
+		if len(operands) != 3 {
+			errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
+			log.Fatal(errMsg)
+		}
+	}
+
+	outBin := uint32(0)
+
+	// Generate initial binary
+	switch opcode {
+	case "ADDI":
+		outBin = 0b1001000100
+	}
+
+	// Generate the remaining binary based on the instruction
+	switch opcode {
+	case "ADDI":
+		// Get the immediate value for adding
+		base := 0
+		cut := 0
+		if len(operands[2]) >= 4 && operands[2][:3] == "#0x" {
+			// Base 16
+			base = 16
+			cut = 3
+		} else {
+			// Base 10
+			base = 10
+			cut = 1
+		}
+		// Get the value based on the base that was decided earlier
+		val, errConv := strconv.ParseUint(operands[2][cut:], base, 12)
+		if errConv == nil {
+			// Add the value to the binary
+			outBin = outBin << 12 | uint32(val)
+		} else {
+			errMsg := ""
+			if strings.Contains(errConv.Error(), "value out of range") {
+				// Out of range errors
+				if base == 10 {
+					errMsg = fmt.Sprintf("Bad ALU immediate value: Value must be between 0 and 4,095 (12 bits) but got %s; File: %s; Line: %d", operands[2][1:], fileName, lineNumber)
+				} else {
+					errMsg = fmt.Sprintf("Bad ALU immediate value: Value must be between 0x000 and 0xFFF (12 bits) but got %s; File: %s; Line: %d", operands[2][1:], fileName, lineNumber)
+				}
+			} else {
+				// Bad value error
+				errMsg = fmt.Sprintf("Bad ALU immediate value; File: %s; Line: %d", fileName, lineNumber)
+			}
+			log.Fatal(errMsg)
+		}
+
+		// Get the register for the operation
+		reg, errConv := strconv.ParseInt(operands[1][1:], 10, 0)
 		if errConv != nil {
 			// Bad value error
 			errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
