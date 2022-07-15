@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"math"
 )
 
 // Assembles a program into instructions for the computer to read
@@ -95,37 +96,8 @@ func instrIM(opcode string, operands []string, fileName string, lineNumber int) 
 	}
 
 	// Get the value to move into the register
-	base := 0
-	cut := 0
-	if len(operands[1]) >= 4 && operands[1][:3] == "#0x" {
-		// Base 16
-		base = 16
-		cut = 3
-	} else {
-		// Base 10
-		base = 10
-		cut = 1
-	}
-	// Get the value based on the base that was decided earlier
-	val, errConv := strconv.ParseUint(operands[1][cut:], base, 16)
-	if errConv == nil {
-		// Add the value to the binary
-		outBin = outBin << 16 | uint32(val)
-	} else {
-		errMsg := ""
-		if strings.Contains(errConv.Error(), "value out of range") {
-			// Out of range errors
-			if base == 10 {
-				errMsg = fmt.Sprintf("Bad move immediate value: Value must be between 0 and 65,535 (16 bits) but got %s; File: %s; Line: %d", operands[1][1:], fileName, lineNumber)
-			} else {
-				errMsg = fmt.Sprintf("Bad move immediate value: Value must be between 0x0000 and 0xFFFF (16 bits) but got %s; File: %s; Line: %d", operands[1][1:], fileName, lineNumber)
-			}
-		} else {
-			// Bad value error
-			errMsg = fmt.Sprintf("Bad move immediate value; File: %s; Line: %d", fileName, lineNumber)
-		}
-		log.Fatal(errMsg)
-	}
+	val := getValue(operands[1], 16, "move immediate", fileName, lineNumber)
+	outBin = outBin << 16 | uint32(val)
 
 	// Get the register to move the value to
 	destReg := getRegister(operands[0], fileName, lineNumber)
@@ -204,37 +176,8 @@ func instrI(opcode string, operands []string, fileName string, lineNumber int) u
 	switch opcode {
 	case "ADDI", "ADDIS":
 		// Get the immediate value for adding
-		base := 0
-		cut := 0
-		if len(operands[2]) >= 4 && operands[2][:3] == "#0x" {
-			// Base 16
-			base = 16
-			cut = 3
-		} else {
-			// Base 10
-			base = 10
-			cut = 1
-		}
-		// Get the value based on the base that was decided earlier
-		val, errConv := strconv.ParseUint(operands[2][cut:], base, 12)
-		if errConv == nil {
-			// Add the value to the binary
-			outBin = outBin << 12 | uint32(val)
-		} else {
-			errMsg := ""
-			if strings.Contains(errConv.Error(), "value out of range") {
-				// Out of range errors
-				if base == 10 {
-					errMsg = fmt.Sprintf("Bad ALU immediate value: Value must be between 0 and 4,095 (12 bits) but got %s; File: %s; Line: %d", operands[2][1:], fileName, lineNumber)
-				} else {
-					errMsg = fmt.Sprintf("Bad ALU immediate value: Value must be between 0x000 and 0xFFF (12 bits) but got %s; File: %s; Line: %d", operands[2][1:], fileName, lineNumber)
-				}
-			} else {
-				// Bad value error
-				errMsg = fmt.Sprintf("Bad ALU immediate value; File: %s; Line: %d", fileName, lineNumber)
-			}
-			log.Fatal(errMsg)
-		}
+		val := getValue(operands[2], 12, "ALU immediate", fileName, lineNumber)
+		outBin = outBin << 12 | uint32(val)
 
 		// Get the register for the operation
 		srcReg := getRegister(operands[1], fileName, lineNumber)
@@ -266,5 +209,43 @@ func getRegister(regString string, fileName string, lineNumber int) int64 {
 	} else {
 		// Return the register
 		return reg
+	}
+}
+
+// Parses a string for a constant value
+func getValue(valStr string, maxSize int, valName string, fileName string, lineNumber int) uint64 {
+	// Get the value to move into the register
+	base := 0
+	cut := 0
+	if len(valStr) >= 4 && valStr[:3] == "#0x" {
+		// Base 16
+		base = 16
+		cut = 3
+	} else {
+		// Base 10
+		base = 10
+		cut = 1
+	}
+	// Get the value based on the base that was decided earlier
+	val, errConv := strconv.ParseUint(valStr[cut:], base, maxSize)
+	if errConv == nil {
+		return val
+	} else {
+		errMsg := ""
+		if strings.Contains(errConv.Error(), "value out of range") {
+			maxValue := uint(math.Pow(2, float64(maxSize)) - 1)
+			// Out of range errors
+			if base == 10 {
+				errMsg = fmt.Sprintf("Bad %s value: Value must be between 0 and %d (%d bits) but got %s; File: %s; Line: %d", valName, maxValue, maxSize, valStr, fileName, lineNumber)
+			} else {
+				repeatedZeros := strings.Repeat("0", int(math.Ceil(float64(maxSize) / 4)))
+				errMsg = fmt.Sprintf("Bad %s value: Value must be between 0x%s and 0x%X (%d bits) but got %s; File: %s; Line: %d", valName, repeatedZeros, maxValue, maxSize, valStr, fileName, lineNumber)
+			}
+		} else {
+			// Bad value error
+			errMsg = fmt.Sprintf("Bad %s value; File: %s; Line: %d", valName, fileName, lineNumber)
+		}
+		log.Fatal(errMsg)
+		return 0
 	}
 }
