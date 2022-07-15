@@ -63,7 +63,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 		}
 	
 	case 0x458, 0x558: // ADD, ADDS
-		output := exu.alu.Add(idexReg.regReadData1, idexReg.regReadData2, false)
+		output := exu.alu.Add(idexReg.regReadData1, idexReg.regReadData2)
 
 		// Clear flags if ADD
 		if opcode == 0x458 {

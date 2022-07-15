@@ -34,7 +34,7 @@ func NewAlu() *Alu {
 }
 
 // Function that adds 2 numbers
-func (alu *Alu) Add(num1 uint64, num2 uint64, useCarry bool) uint64 {
+func (alu *Alu) Add(num1 uint64, num2 uint64) uint64 {
 	// Grab the initial signs for overflow check
 	num1Sign := num1 >> 63
 	num2Sign := num2 >> 63
@@ -42,7 +42,7 @@ func (alu *Alu) Add(num1 uint64, num2 uint64, useCarry bool) uint64 {
 	// Initialize the sum and carry
 	sum := uint64(0)
 	carry := uint64(0)
-	if useCarry && alu.carryFlag {
+	if alu.carryFlag {
 		carry = 1
 	}
 
@@ -116,6 +116,8 @@ func (alu *Alu) halfAdder(bit1 uint64, bit2 uint64) adderOutput {
 
 // Function for multiplying 2 numbers
 func (alu *Alu) Multiply(multiplicand uint64, multiplier uint64) []uint64 {
+	alu.ClearFlags()
+
 	multiplicandTop := uint64(0)
 
 	productBottom := uint64(0)
@@ -145,8 +147,8 @@ func (alu *Alu) Multiply(multiplicand uint64, multiplier uint64) []uint64 {
 		go func() {
 			defer wg.Done()
 			if lastMultiplierBit == 1 {
-				productBottom = alu.Add(mbCopy, productBottom, false)
-				productTop = alu.Add(mtCopy, productTop, true)
+				productBottom = alu.Add(mbCopy, productBottom)
+				productTop = alu.Add(mtCopy, productTop)
 			}
 		}()
 
