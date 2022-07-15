@@ -94,7 +94,8 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 			signExtendImm: 0,
 		}
 
-	case 0x488, 0x489: // ADDI
+	case 0x488, 0x489, // ADDI
+		 0x588, 0x589: // ADDIS
 		// Get the immediate value
 		immediate := ifidReg.instr & 0x3FFFFF >> 10
 		signExtendImm := signExtend(immediate)

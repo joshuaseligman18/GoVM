@@ -79,7 +79,8 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			incrementedPC: idexReg.incrementedPC,
 			writeVal: output,
 		}
-	case 0x488, 0x489: // ADDI
+	case 0x488, 0x489, // ADDI
+		 0x588, 0x589: // ADDIS
 		output := exu.alu.Add(idexReg.regReadData1, idexReg.signExtendImm)
 
 		// Clear flags if ADDI

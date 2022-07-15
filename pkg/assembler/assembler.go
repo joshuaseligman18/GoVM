@@ -48,9 +48,11 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		// IM instructions
 		case "MOVZ", "MOVK":
 			instrBin = instrIM(opcode, operands, filePath, instrIndex + 1)
+		// R instructions
 		case "ADD", "ADDS":
 			instrBin = instrR(opcode, operands, filePath, instrIndex + 1)
-		case "ADDI":
+		// I instructions
+		case "ADDI", "ADDIS":
 			instrBin = instrI(opcode, operands, filePath, instrIndex + 1)
 		}
 
@@ -238,11 +240,13 @@ func instrI(opcode string, operands []string, fileName string, lineNumber int) u
 	switch opcode {
 	case "ADDI":
 		outBin = 0b1001000100
+	case "ADDIS":
+		outBin = 0b1011000100
 	}
 
 	// Generate the remaining binary based on the instruction
 	switch opcode {
-	case "ADDI":
+	case "ADDI", "ADDIS":
 		// Get the immediate value for adding
 		base := 0
 		cut := 0
