@@ -79,6 +79,23 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			incrementedPC: idexReg.incrementedPC,
 			writeVal: output,
 		}
+	case 0x488, 0x489: // ADDI
+		output := exu.alu.Add(idexReg.regReadData1, idexReg.signExtendImm)
+
+		// Clear flags if ADDI
+		if opcode == 0x488 || opcode == 0x489 {
+			exu.alu.ClearFlags()
+		}
+
+		fmt.Println(exu.alu)
+
+		exu.Log(fmt.Sprintf("Sum: %s", util.ConvertToHexUint64(output)))
+
+		out <- &EXMEMReg {
+			instr: idexReg.instr,
+			incrementedPC: idexReg.incrementedPC,
+			writeVal: output,
+		}
 	}
 }
 

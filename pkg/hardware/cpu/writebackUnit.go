@@ -24,7 +24,8 @@ func (wbu *WritebackUnit) HandleWriteback(out chan bool, memwbReg *MEMWBReg) {
 	switch opcode {
 	case 0x694, 0x695, 0x696, 0x697, // MOVZ
 		 0x794, 0x795, 0x796, 0x797, // MOVK
-		 0x458, 0x558: // ADD, ADDS
+		 0x458, 0x558, // ADD, ADDS
+		 0x488, 0x489: // ADDI
 		reg := wbu.cpu.GetRegisterLocks().Dequeue()
 		wbu.cpu.GetRegisters()[reg] = memwbReg.writeVal
 	}
