@@ -128,19 +128,8 @@ func instrIM(opcode string, operands []string, fileName string, lineNumber int) 
 	}
 
 	// Get the register to move the value to
-	reg, errConv := strconv.ParseInt(operands[0][1:], 10, 0)
-	if errConv != nil {
-		// Bad value error
-		errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
-		log.Fatal(errMsg)
-	} else if reg < 0 || reg > 30 {
-		// Invalid register error
-		errMsg := fmt.Sprintf("Bad register value: Register must be between 0 and 30 (inclusive); File: %s; Line: %d", fileName, lineNumber)
-		log.Fatal(errMsg)
-	} else {
-		// Add the register to the binary
-		outBin = outBin << 5 | uint32(reg)
-	}
+	destReg := getRegister(operands[0], fileName, lineNumber)
+	outBin = outBin << 5 | uint32(destReg)
 
 	// Return the instruction binary
 	return outBin
@@ -171,52 +160,19 @@ func instrR(opcode string, operands []string, fileName string, lineNumber int) u
 	switch opcode {
 	case "ADD", "ADDS":
 		// Get the first register for the operation
-		reg, errConv := strconv.ParseInt(operands[1][1:], 10, 0)
-		if errConv != nil {
-			// Bad value error
-			errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
-			log.Fatal(errMsg)
-		} else if reg < 0 || reg > 30 {
-			// Invalid register error
-			errMsg := fmt.Sprintf("Bad register value: Register must be between 0 and 30 (inclusive); File: %s; Line: %d", fileName, lineNumber)
-			log.Fatal(errMsg)
-		} else {
-			// Add the register to the binary
-			outBin = outBin << 5 | uint32(reg)
-		}
+		readReg1 := getRegister(operands[1], fileName, lineNumber)
+		outBin = outBin << 5 | uint32(readReg1)
 		
 		// Add an empty shift amount
 		outBin = outBin << 6
 
 		// Get the second register for the operation
-		reg, errConv = strconv.ParseInt(operands[2][1:], 10, 0)
-		if errConv != nil {
-			// Bad value error
-			errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
-			log.Fatal(errMsg)
-		} else if reg < 0 || reg > 30 {
-			// Invalid register error
-			errMsg := fmt.Sprintf("Bad register value: Register must be between 0 and 30 (inclusive); File: %s; Line: %d", fileName, lineNumber)
-			log.Fatal(errMsg)
-		} else {
-			// Add the register to the binary
-			outBin = outBin << 5 | uint32(reg)
-		}
+		readReg2 := getRegister(operands[2], fileName, lineNumber)
+		outBin = outBin << 5 | uint32(readReg2)
 
 		// Get the destination register for the operation
-		reg, errConv = strconv.ParseInt(operands[0][1:], 10, 0)
-		if errConv != nil {
-			// Bad value error
-			errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
-			log.Fatal(errMsg)
-		} else if reg < 0 || reg > 30 {
-			// Invalid register error
-			errMsg := fmt.Sprintf("Bad register value: Register must be between 0 and 30 (inclusive); File: %s; Line: %d", fileName, lineNumber)
-			log.Fatal(errMsg)
-		} else {
-			// Add the register to the binary
-			outBin = outBin << 5 | uint32(reg)
-		}
+		destReg := getRegister(operands[0], fileName, lineNumber)
+		outBin = outBin << 5 | uint32(destReg)
 	}
 
 	// Return the instruction binary
@@ -281,36 +237,34 @@ func instrI(opcode string, operands []string, fileName string, lineNumber int) u
 		}
 
 		// Get the register for the operation
-		reg, errConv := strconv.ParseInt(operands[1][1:], 10, 0)
-		if errConv != nil {
-			// Bad value error
-			errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
-			log.Fatal(errMsg)
-		} else if reg < 0 || reg > 30 {
-			// Invalid register error
-			errMsg := fmt.Sprintf("Bad register value: Register must be between 0 and 30 (inclusive); File: %s; Line: %d", fileName, lineNumber)
-			log.Fatal(errMsg)
-		} else {
-			// Add the register to the binary
-			outBin = outBin << 5 | uint32(reg)
-		}
+		srcReg := getRegister(operands[1], fileName, lineNumber)
+		outBin = outBin << 5 | uint32(srcReg)
 
 		// Get the destination register for the operation
-		reg, errConv = strconv.ParseInt(operands[0][1:], 10, 0)
-		if errConv != nil {
-			// Bad value error
-			errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
-			log.Fatal(errMsg)
-		} else if reg < 0 || reg > 30 {
-			// Invalid register error
-			errMsg := fmt.Sprintf("Bad register value: Register must be between 0 and 30 (inclusive); File: %s; Line: %d", fileName, lineNumber)
-			log.Fatal(errMsg)
-		} else {
-			// Add the register to the binary
-			outBin = outBin << 5 | uint32(reg)
-		}
+		destReg := getRegister(operands[0], fileName, lineNumber)
+		outBin = outBin << 5 | uint32(destReg)
 	}
 
 	// Return the instruction binary
 	return outBin
+}
+
+// Parses a string for a register value
+func getRegister(regString string, fileName string, lineNumber int) int64 {
+	// Get the register for the operation
+	reg, errConv := strconv.ParseInt(regString[1:], 10, 0)
+	if errConv != nil {
+		// Bad value error
+		errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
+		log.Fatal(errMsg)
+		return -1
+	} else if reg < 0 || reg > 30 {
+		// Invalid register error
+		errMsg := fmt.Sprintf("Bad register value: Register must be between 0 and 30 (inclusive); File: %s; Line: %d", fileName, lineNumber)
+		log.Fatal(errMsg)
+		return -1
+	} else {
+		// Return the register
+		return reg
+	}
 }
