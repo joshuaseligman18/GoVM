@@ -50,7 +50,7 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		case "MOVZ", "MOVK":
 			instrBin = instrIM(opcode, operands, filePath, instrIndex + 1)
 		// R instructions
-		case "ADD", "ADDS":
+		case "ADD", "ADDS", "SUB":
 			instrBin = instrR(opcode, operands, filePath, instrIndex + 1)
 		// I instructions
 		case "ADDI", "ADDIS":
@@ -126,11 +126,13 @@ func instrR(opcode string, operands []string, fileName string, lineNumber int) u
 		outBin = 0b10001011000
 	case "ADDS":
 		outBin = 0b10101011000
+	case "SUB":
+		outBin = 0b11001011000
 	}
 
 	// Generate the remaining binary based on the instruction
 	switch opcode {
-	case "ADD", "ADDS":
+	case "ADD", "ADDS", "SUB":
 		// Get the first register for the operation
 		readReg1 := getRegister(operands[1], fileName, lineNumber)
 		outBin = outBin << 5 | uint32(readReg1)

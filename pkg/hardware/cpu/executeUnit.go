@@ -70,8 +70,6 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			exu.alu.ClearFlags()
 		}
 
-		fmt.Println(exu.alu)
-
 		exu.Log(fmt.Sprintf("Sum: %s", util.ConvertToHexUint64(output)))
 
 		out <- &EXMEMReg {
@@ -88,9 +86,22 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			exu.alu.ClearFlags()
 		}
 
-		fmt.Println(exu.alu)
-
 		exu.Log(fmt.Sprintf("Sum: %s", util.ConvertToHexUint64(output)))
+
+		out <- &EXMEMReg {
+			instr: idexReg.instr,
+			incrementedPC: idexReg.incrementedPC,
+			writeVal: output,
+		}
+
+	case 0x658: // SUB
+		output := exu.alu.Add(idexReg.regReadData1, exu.alu.Negate(idexReg.regReadData2))
+		
+		if opcode == 0x658 {
+			exu.alu.ClearFlags()
+		}
+
+		exu.Log(fmt.Sprintf("Difference: %s", util.ConvertToHexUint64(output)))
 
 		out <- &EXMEMReg {
 			instr: idexReg.instr,

@@ -26,7 +26,8 @@ func (wbu *WritebackUnit) HandleWriteback(out chan bool, memwbReg *MEMWBReg) {
 		 0x794, 0x795, 0x796, 0x797, // MOVK
 		 0x458, 0x558, // ADD, ADDS
 		 0x488, 0x489, // ADDI
-		 0x588, 0x589: // ADDIS
+		 0x588, 0x589, // ADDIS
+		 0x658: // SUB
 		reg := wbu.cpu.GetRegisterLocks().Dequeue()
 		wbu.cpu.GetRegisters()[reg] = memwbReg.writeVal
 	}
