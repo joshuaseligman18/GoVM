@@ -53,7 +53,7 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		case "ADD", "ADDS", "SUB", "SUBS":
 			instrBin = instrR(opcode, operands, filePath, instrIndex + 1)
 		// I instructions
-		case "ADDI", "ADDIS":
+		case "ADDI", "ADDIS", "SUBI":
 			instrBin = instrI(opcode, operands, filePath, instrIndex + 1)
 		}
 
@@ -159,7 +159,7 @@ func instrR(opcode string, operands []string, fileName string, lineNumber int) u
 func instrI(opcode string, operands []string, fileName string, lineNumber int) uint32 {
 	// Make sure we have the right number of operands
 	switch opcode {
-	case "ADDI":
+	case "ADDI", "ADDIS", "SUBI":
 		if len(operands) != 3 {
 			errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
 			log.Fatal(errMsg)
@@ -174,11 +174,13 @@ func instrI(opcode string, operands []string, fileName string, lineNumber int) u
 		outBin = 0b1001000100
 	case "ADDIS":
 		outBin = 0b1011000100
+	case "SUBI":
+		outBin = 0b1101000100
 	}
 
 	// Generate the remaining binary based on the instruction
 	switch opcode {
-	case "ADDI", "ADDIS":
+	case "ADDI", "ADDIS", "SUBI":
 		// Get the immediate value for adding
 		val := getValue(operands[2], 12, "ALU immediate", fileName, lineNumber)
 		outBin = outBin << 12 | uint32(val)

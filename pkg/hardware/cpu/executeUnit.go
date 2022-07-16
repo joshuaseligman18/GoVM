@@ -77,6 +77,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			incrementedPC: idexReg.incrementedPC,
 			writeVal: output,
 		}
+
 	case 0x488, 0x489, // ADDI
 		 0x588, 0x589: // ADDIS
 		output := exu.alu.Add(idexReg.regReadData1, idexReg.signExtendImm)
@@ -111,6 +112,22 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			incrementedPC: idexReg.incrementedPC,
 			writeVal: output,
 		}
+	
+	case 0x688, 0x689: // SUBI
+	   output := exu.alu.Add(idexReg.regReadData1, exu.alu.Negate(idexReg.signExtendImm))
+
+	   // Clear flags if ADDI
+	   if opcode == 688 || opcode == 689 {
+		   exu.alu.ClearFlags()
+	   }
+
+	   exu.Log(fmt.Sprintf("Difference: %s", util.ConvertToHexUint64(output)))
+
+	   out <- &EXMEMReg {
+		   instr: idexReg.instr,
+		   incrementedPC: idexReg.incrementedPC,
+		   writeVal: output,
+	   }
 	}
 }
 
