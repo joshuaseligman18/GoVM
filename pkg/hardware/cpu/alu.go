@@ -65,7 +65,7 @@ func (alu *Alu) Add(num1 uint64, num2 uint64) uint64 {
 	// Update the flags
 	alu.negativeFlag = ((sum >> 63) == 1)
 	alu.zeroFlag = (sum == 0)
-	if num1Sign == num2Sign && alu.negativeFlag == (num1Sign == 1) {
+	if num1Sign == num2Sign && alu.negativeFlag != (num1Sign == 1) {
 		alu.overflowFlag = true
 	} else {
 		alu.overflowFlag = false
