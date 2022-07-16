@@ -94,12 +94,15 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			writeVal: output,
 		}
 
-	case 0x658: // SUB
+	case 0x658, 0x758: // SUB, SUBS
 		output := exu.alu.Add(idexReg.regReadData1, exu.alu.Negate(idexReg.regReadData2))
 		
+		// Clear the flags if it is SUB
 		if opcode == 0x658 {
 			exu.alu.ClearFlags()
 		}
+
+		fmt.Println(exu.alu)
 
 		exu.Log(fmt.Sprintf("Difference: %s", util.ConvertToHexUint64(output)))
 
