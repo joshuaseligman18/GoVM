@@ -53,7 +53,7 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		case "ADD", "ADDS", "SUB", "SUBS":
 			instrBin = instrR(opcode, operands, filePath, instrIndex + 1)
 		// I instructions
-		case "ADDI", "ADDIS", "SUBI":
+		case "ADDI", "ADDIS", "SUBI", "SUBIS":
 			instrBin = instrI(opcode, operands, filePath, instrIndex + 1)
 		}
 
@@ -176,11 +176,13 @@ func instrI(opcode string, operands []string, fileName string, lineNumber int) u
 		outBin = 0b1011000100
 	case "SUBI":
 		outBin = 0b1101000100
+	case "SUBIS":
+		outBin = 0b1111000100
 	}
 
 	// Generate the remaining binary based on the instruction
 	switch opcode {
-	case "ADDI", "ADDIS", "SUBI":
+	case "ADDI", "ADDIS", "SUBI", "SUBIS":
 		// Get the immediate value for adding
 		val := getValue(operands[2], 12, "ALU immediate", fileName, lineNumber)
 		outBin = outBin << 12 | uint32(val)

@@ -113,10 +113,11 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			writeVal: output,
 		}
 	
-	case 0x688, 0x689: // SUBI
+	case 0x688, 0x689, // SUBI
+		 0x788, 0x789: // SUBIS
 	   output := exu.alu.Add(idexReg.regReadData1, exu.alu.Negate(idexReg.signExtendImm))
 
-	   // Clear flags if ADDI
+	   // Clear flags if SUBI
 	   if opcode == 688 || opcode == 689 {
 		   exu.alu.ClearFlags()
 	   }
