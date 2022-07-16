@@ -159,6 +159,12 @@ func (alu *Alu) Multiply(multiplicand uint64, multiplier uint64) []uint64 {
 	return []uint64{productTop, productBottom}
 }
 
+// Negates a number using 2's complement
+func (alu *Alu) Negate(num uint64) uint64 {
+	out := ^num + 1
+	return out
+}
+
 // Clears the flags of the ALU
 func (alu *Alu) ClearFlags() {
 	alu.negativeFlag = false
