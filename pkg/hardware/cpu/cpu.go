@@ -68,7 +68,7 @@ func (cpu *Cpu) Pulse() {
 	if len(endInstrChan) == 0 && len(memwbChan) == 1 && !writebackRunning {
 		cpu.memwbReg = <- memwbChan
 		memRunning = false
-		cpu.Log(fmt.Sprintf("Starting writeback: %d", cpu.memwbReg.incrementedPC - 1))
+		cpu.Log(fmt.Sprintf("Starting writeback: %d", cpu.memwbReg.incrementedPC - 4))
 		go cpu.writebackUnit.HandleWriteback(endInstrChan, cpu.memwbReg)
 		writebackRunning = true
 	}
@@ -77,7 +77,7 @@ func (cpu *Cpu) Pulse() {
 	if len(memwbChan) == 0 && len(exmemChan) == 1 && !memRunning {
 		cpu.exmemReg = <- exmemChan
 		executeRunning = false
-		cpu.Log(fmt.Sprintf("Starting mem data access: %d", cpu.exmemReg.incrementedPC - 1))
+		cpu.Log(fmt.Sprintf("Starting mem data access: %d", cpu.exmemReg.incrementedPC - 4))
 		go cpu.memDataUnit.HandleMemoryAccess(memwbChan, cpu.exmemReg)
 		memRunning = true
 	}
@@ -86,7 +86,7 @@ func (cpu *Cpu) Pulse() {
 	if len(exmemChan) == 0 && len(idexChan) == 1 && !executeRunning {
 		cpu.idexReg = <- idexChan
 		decodeRunning = false
-		cpu.Log(fmt.Sprintf("Starting execute: %d", cpu.idexReg.incrementedPC - 1))
+		cpu.Log(fmt.Sprintf("Starting execute: %d", cpu.idexReg.incrementedPC - 4))
 		go cpu.executeUnit.ExecuteInstruction(exmemChan, cpu.idexReg)
 		executeRunning = true
 	}
@@ -95,7 +95,7 @@ func (cpu *Cpu) Pulse() {
 	if len(idexChan) == 0 && len(ifidChan) == 1 && !decodeRunning {
 		cpu.ifidReg = <- ifidChan
 		fetchRunning = false
-		cpu.Log(fmt.Sprintf("Starting decode: %d", cpu.ifidReg.incrementedPC - 1))
+		cpu.Log(fmt.Sprintf("Starting decode: %d", cpu.ifidReg.incrementedPC - 4))
 		go cpu.decodeUnit.DecodeInstruction(idexChan, cpu.ifidReg)
 		decodeRunning = true
 	}

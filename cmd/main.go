@@ -13,7 +13,7 @@ func main() {
 	
 	mem := memory.NewFlashedMemory(assembledProgram)
 	
-	mem.MemoryDump(0, 10)
+	mem.MemoryDump(0, 30)
 	
 	cpu := cpu.NewCpu(mem)
 	guiData := gui.NewGuiData(cpu)

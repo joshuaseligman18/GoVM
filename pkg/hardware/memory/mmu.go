@@ -8,7 +8,7 @@ import (
 type Mmu struct {
 	hw *hardware.Hardware // The hardware struct
 	mar uint // The memory address register
-	mdr uint32 // The memory data register
+	mdr uint64 // The memory data register
 	memory *Memory
 }
 
@@ -25,12 +25,19 @@ func NewMmu(mem *Memory) *Mmu {
 
 // Sends the signal to memory to read the value in the address of the MAR
 func (mmu *Mmu) CallRead() {
-	mmu.mdr = mmu.memory.Read(mmu.mar)
+	var newMdr uint64 = 0x0
+	for i := 0; i < 8; i++ {
+		newMdr = newMdr << 8 | uint64(mmu.memory.Read(mmu.mar + uint(i)))
+	}
+	mmu.mdr = newMdr
 }
 
 // Sends the signal to memory to write the value in the MDR to the address of the MAR
 func (mmu *Mmu) CallWrite() {
-	mmu.memory.Write(mmu.mar, mmu.mdr)
+	for i := 0; i < 8; i++ {
+		data := uint8((mmu.mdr >> (i * 8)) & 0xFF)
+		mmu.memory.Write(mmu.mar + uint(i), data)
+	}
 }
 
 // Gets the MAR of the MMU
@@ -44,12 +51,12 @@ func (mmu *Mmu) SetMar(newMar uint) {
 }
 
 // Gets the MDR of the MMU
-func (mmu *Mmu) GetMdr() uint32 {
+func (mmu *Mmu) GetMdr() uint64 {
 	return mmu.mdr
 }
 
 // Sets the MDR of the MMU
-func (mmu *Mmu) SetMdr(newMdr uint32) {
+func (mmu *Mmu) SetMdr(newMdr uint64) {
 	mmu.mdr = newMdr
 }
 

@@ -3,6 +3,7 @@ package cpu
 import (
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
+	"github.com/joshuaseligman/GoVM/pkg/util"
 )
 
 type FetchUnit struct {
@@ -22,9 +23,10 @@ func NewFetchUnit(mem *memory.Memory) *FetchUnit {
 func (ifu *FetchUnit) FetchInstruction(out chan *IFIDReg, addr *uint) {
 	ifu.mmu.SetMar(*addr)
 	ifu.mmu.CallRead()
-	*addr++
+	ifu.Log(util.ConvertToHexUint32(uint32(ifu.mmu.GetMdr() >> 32)))
+	*addr += 4
 	out <- &IFIDReg {
-		instr: ifu.mmu.GetMdr(), 
+		instr: uint32(ifu.mmu.GetMdr() >> 32),
 		incrementedPC: *addr,
 	}
 }

@@ -32,9 +32,6 @@ func NewFlashedMemory(program []uint32) *Memory {
 		instr := program[i]
 		for j := 0; j < 4; j++ {
 			byteInstr := uint8(instr >> (8 * (3 - j)) & 0xFF)
-			if i < 10 {
-				fmt.Println(byteInstr)
-			}
 			mem.ram[i * 4 + j] = byteInstr
 		}
 	}
