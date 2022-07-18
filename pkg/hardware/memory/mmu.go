@@ -7,7 +7,7 @@ import (
 // The struct for the memory management unit
 type Mmu struct {
 	hw *hardware.Hardware // The hardware struct
-	mar uint // The memory address register
+	mar uint64 // The memory address register
 	mdr uint64 // The memory data register
 	memory *Memory
 }
@@ -27,7 +27,7 @@ func NewMmu(mem *Memory) *Mmu {
 func (mmu *Mmu) CallRead() {
 	var newMdr uint64 = 0x0
 	for i := 0; i < 8; i++ {
-		newMdr = newMdr << 8 | uint64(mmu.memory.Read(mmu.mar + uint(i)))
+		newMdr = newMdr << 8 | uint64(mmu.memory.Read(mmu.mar + uint64(i)))
 	}
 	mmu.mdr = newMdr
 }
@@ -36,17 +36,17 @@ func (mmu *Mmu) CallRead() {
 func (mmu *Mmu) CallWrite() {
 	for i := 0; i < 8; i++ {
 		data := uint8((mmu.mdr >> (i * 8)) & 0xFF)
-		mmu.memory.Write(mmu.mar + uint(i), data)
+		mmu.memory.Write(mmu.mar + uint64(i), data)
 	}
 }
 
 // Gets the MAR of the MMU
-func (mmu *Mmu) GetMar() uint {
+func (mmu *Mmu) GetMar() uint64 {
 	return mmu.mar
 }
 
 // Sets the MAR of the MMU
-func (mmu *Mmu) SetMar(newMar uint) {
+func (mmu *Mmu) SetMar(newMar uint64) {
 	mmu.mar = newMar
 }
 

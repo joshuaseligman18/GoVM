@@ -39,22 +39,22 @@ func NewFlashedMemory(program []uint32) *Memory {
 }
 
 // Sets the MDR to the value stored in memory at the address MAR
-func (mem *Memory) Read(addr uint) uint8 {
+func (mem *Memory) Read(addr uint64) uint8 {
 	return mem.ram[addr] 
 }
 
 // Writes to RAM based on the current values of MAR and MDR
-func (mem *Memory) Write(addr uint, data uint8) {
+func (mem *Memory) Write(addr uint64, data uint8) {
 	mem.ram[addr] = data
 }
 
 // Prints the value stored in the given address
-func (mem *Memory) PrintMemory(addr uint) {
+func (mem *Memory) PrintMemory(addr uint64) {
 	mem.Log(fmt.Sprintf("Addr: %s; Data: %s", util.ConvertToHexUint32(uint32(addr)), util.ConvertToHexUint8(mem.ram[addr])))
 }
 
 // Prints a range of memory addresses
-func (mem *Memory) MemoryDump(start uint, end uint) {
+func (mem *Memory) MemoryDump(start uint64, end uint64) {
 	mem.Log("***** Start of Memory Dump *****")
 	for i := start; i <= end; i++ {
 		mem.PrintMemory(i)

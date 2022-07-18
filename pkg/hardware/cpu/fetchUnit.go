@@ -20,7 +20,7 @@ func NewFetchUnit(mem *memory.Memory) *FetchUnit {
 }
 
 // Fetches the instruction from memory
-func (ifu *FetchUnit) FetchInstruction(out chan *IFIDReg, addr *uint) {
+func (ifu *FetchUnit) FetchInstruction(out chan *IFIDReg, addr *uint64) {
 	ifu.mmu.SetMar(*addr)
 	ifu.mmu.CallRead()
 	ifu.Log(util.ConvertToHexUint32(uint32(ifu.mmu.GetMdr() >> 32)))

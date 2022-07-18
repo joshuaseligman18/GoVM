@@ -13,7 +13,7 @@ type Cpu struct {
 	hw *hardware.Hardware // The hardware struct
 	acc uint64 // The accumulator
 	reg []uint64 // Other registers
-	programCounter uint // The address of the current instruction being fetched
+	programCounter uint64 // The address of the current instruction being fetched
 	fetchUnit *FetchUnit // The fetch unit
 	decodeUnit *DecodeUnit // The decode unit
 	executeUnit *ExecuteUnit // The execute unit
@@ -114,7 +114,7 @@ func (cpu *Cpu) Log(msg string) {
 }
 
 // Gets the program counter
-func (cpu *Cpu) GetProgramCounter() uint{
+func (cpu *Cpu) GetProgramCounter() uint64 {
 	return cpu.programCounter
 }
 

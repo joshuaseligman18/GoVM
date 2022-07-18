@@ -3,7 +3,7 @@ package cpu
 // Struct for the data passed from the fetch unit to the decode unit
 type IFIDReg struct {
 	instr uint32 // The fetched instruction
-	incrementedPC uint // The incremented program counter
+	incrementedPC uint64 // The incremented program counter
 }
 
 // Gets the instruction in the IFID register
@@ -12,14 +12,14 @@ func (ifidReg *IFIDReg) GetInstruction() uint32 {
 }
 
 // Gets the incremented program counter in the IFID register
-func (ifidReg *IFIDReg) GetIncrementedPC() uint {
+func (ifidReg *IFIDReg) GetIncrementedPC() uint64 {
 	return ifidReg.incrementedPC
 }
 
 // Struct for the data passed from the decode unit to the execute unit
 type IDEXReg struct {
 	instr uint32 // The fetched instruction
-	incrementedPC uint // The incremented program counter
+	incrementedPC uint64 // The incremented program counter
 	regReadData1 uint64 // The data in the first read register
 	regReadData2 uint64 // The data in the second read register
 	signExtendImm uint64 // The sign extended immediate
@@ -31,7 +31,7 @@ func (idexReg *IDEXReg) GetInstruction() uint32 {
 }
 
 // Gets the incremented program counter in the IDEX register
-func (idexReg *IDEXReg) GetIncrementedPC() uint {
+func (idexReg *IDEXReg) GetIncrementedPC() uint64 {
 	return idexReg.incrementedPC
 }
 
@@ -53,7 +53,7 @@ func (idexReg *IDEXReg) GetSignExtendedImmediate() uint64 {
 // Struct for the data passed between the execute and memory units
 type EXMEMReg struct {
 	instr uint32 // The instruction
-	incrementedPC uint // The incremented program counter
+	incrementedPC uint64 // The incremented program counter
 	writeVal uint64 // The value to write
 }
 
@@ -63,7 +63,7 @@ func (exmemReg *EXMEMReg) GetInstruction() uint32 {
 }
 
 // Gets the incremented program counter in the IDEX register
-func (exmemReg *EXMEMReg) GetIncrementedPC() uint {
+func (exmemReg *EXMEMReg) GetIncrementedPC() uint64 {
 	return exmemReg.incrementedPC
 }
 
@@ -75,7 +75,7 @@ func (exmemReg *EXMEMReg) GetWriteVal() uint64 {
 // Struct for the data passed between the execute and memory units
 type MEMWBReg struct {
 	instr uint32 // The instruction
-	incrementedPC uint // The incremented program counter
+	incrementedPC uint64 // The incremented program counter
 	writeVal uint64 // The value to write
 }
 
@@ -85,7 +85,7 @@ func (memwbReg *MEMWBReg) GetInstruction() uint32 {
 }
 
 // Gets the incremented program counter in the IDEX register
-func (memwbReg *MEMWBReg) GetIncrementedPC() uint {
+func (memwbReg *MEMWBReg) GetIncrementedPC() uint64 {
 	return memwbReg.incrementedPC
 }
 
