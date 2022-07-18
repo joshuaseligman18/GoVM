@@ -10,14 +10,14 @@ import (
 // Struct for memory
 type Memory struct {
 	hw *hardware.Hardware // The hardware struct
-	ram []uint32 // The RAM
+	ram []uint8 // The RAM
 }
 
 // Creates an empty memory struct
 func NewMemory(addressableSpace uint) *Memory {
 	mem := Memory { 
 		hw: hardware.NewHardware("RAM", 0), 
-		ram: make([]uint32, addressableSpace), 
+		ram: make([]uint8, addressableSpace), 
 	}
 	return &mem
 }
@@ -26,24 +26,34 @@ func NewMemory(addressableSpace uint) *Memory {
 func NewFlashedMemory(program []uint32) *Memory {
 	mem := Memory {
 		hw: hardware.NewHardware("RAM", 0), 
-		ram: program,
+		ram: make([]uint8, len(program) * 4),
+	}
+	for i := 0; i < len(program); i++ {
+		instr := program[i]
+		for j := 0; j < 4; j++ {
+			byteInstr := uint8(instr >> (8 * (3 - j)) & 0xFF)
+			if i < 10 {
+				fmt.Println(byteInstr)
+			}
+			mem.ram[i * 4 + j] = byteInstr
+		}
 	}
 	return &mem
 }
 
 // Sets the MDR to the value stored in memory at the address MAR
-func (mem *Memory) Read(addr uint) uint32 {
+func (mem *Memory) Read(addr uint) uint8 {
 	return mem.ram[addr] 
 }
 
 // Writes to RAM based on the current values of MAR and MDR
-func (mem *Memory) Write(addr uint, data uint32) {
+func (mem *Memory) Write(addr uint, data uint8) {
 	mem.ram[addr] = data
 }
 
 // Prints the value stored in the given address
 func (mem *Memory) PrintMemory(addr uint) {
-	mem.Log(fmt.Sprintf("Addr: %s; Data: %s", util.ConvertToHexUint32(uint32(addr)), util.ConvertToHexUint32(mem.ram[addr])))
+	mem.Log(fmt.Sprintf("Addr: %s; Data: %s", util.ConvertToHexUint32(uint32(addr)), util.ConvertToHexUint8(mem.ram[addr])))
 }
 
 // Prints a range of memory addresses
