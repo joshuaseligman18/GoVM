@@ -131,9 +131,10 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 		}
 
 	case 0x7C2: // LDUR
+		// Get the address to load from
 		output := exu.alu.Add(idexReg.regReadData1, idexReg.signExtendImm)
 		exu.alu.ClearFlags()
-
+		
 		out <- &EXMEMReg {
 			instr: idexReg.instr,
 			incrementedPC: idexReg.incrementedPC,

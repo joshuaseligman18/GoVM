@@ -48,7 +48,7 @@ func NewCpu(mem *memory.Memory) *Cpu {
 		programCounter: 0,
 		fetchUnit: NewFetchUnit(mem),
 		executeUnit: NewExecuteUnit(),
-		memDataUnit: NewMemDataUnit(),
+		memDataUnit: NewMemDataUnit(mem),
 		regLocks: util.NewQueue(),
 	}
 	cpu.decodeUnit = NewDecodeUnit(&cpu)
