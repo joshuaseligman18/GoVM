@@ -115,20 +115,30 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 	
 	case 0x688, 0x689, // SUBI
 		 0x788, 0x789: // SUBIS
-	   output := exu.alu.Add(idexReg.regReadData1, exu.alu.Negate(idexReg.signExtendImm))
+		output := exu.alu.Add(idexReg.regReadData1, exu.alu.Negate(idexReg.signExtendImm))
 
-	   // Clear flags if SUBI
-	   if opcode == 688 || opcode == 689 {
-		   exu.alu.ClearFlags()
-	   }
+		// Clear flags if SUBI
+		if opcode == 688 || opcode == 689 {
+			exu.alu.ClearFlags()
+		}
 
-	   exu.Log(fmt.Sprintf("Difference: %s", util.ConvertToHexUint64(output)))
+		exu.Log(fmt.Sprintf("Difference: %s", util.ConvertToHexUint64(output)))
 
-	   out <- &EXMEMReg {
-		   instr: idexReg.instr,
-		   incrementedPC: idexReg.incrementedPC,
-		   writeVal: output,
-	   }
+		out <- &EXMEMReg {
+			instr: idexReg.instr,
+			incrementedPC: idexReg.incrementedPC,
+			writeVal: output,
+		}
+
+	case 0x7C2: // LDUR
+		output := exu.alu.Add(idexReg.regReadData1, idexReg.signExtendImm)
+		exu.alu.ClearFlags()
+
+		out <- &EXMEMReg {
+			instr: idexReg.instr,
+			incrementedPC: idexReg.incrementedPC,
+			writeVal: output,
+		}
 	}
 }
 

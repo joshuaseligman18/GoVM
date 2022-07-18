@@ -58,6 +58,8 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		// D instructions
 		case "LDUR":
 			instrBin = instrD(opcode, operands, filePath, instrIndex + 1)
+		case "DATA":
+			instrBin = instrData(opcode, operands, filePath, instrIndex + 1)
 		}
 
 		// Add the instruction to the program
@@ -242,6 +244,20 @@ func instrD(opcode string, operands []string, fileName string, lineNumber int) u
 	}
 
 	// Return the instruction binary
+	return outBin
+}
+
+// Generates the binary for constant data
+func instrData(opcode string, operands []string, fileName string, lineNumber int) uint32 {
+	// Make sure we only have 1 number
+	if len(operands) != 1 {
+		errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
+		log.Fatal(errMsg)
+	}
+
+	// Get the value and return it
+	outBin := uint32(getValue(operands[0], 32, "data", fileName, lineNumber))
+
 	return outBin
 }
 
