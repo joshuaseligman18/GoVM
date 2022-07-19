@@ -34,6 +34,18 @@ func (mdu *MemDataUnit) HandleMemoryAccess(out chan *MEMWBReg, exmemReg *EXMEMRe
 			writeVal: mdu.mmu.GetMdr(),
 		}
 
+	case 0x1C2: // LDURB
+		// Set the address and read the next 64 bits
+		mdu.mmu.SetMar(exmemReg.writeVal)
+		mdu.mmu.CallRead()
+		// Return only the first 8 bits
+		result := mdu.mmu.GetMdr() >> 56
+		out <- &MEMWBReg {
+			instr: exmemReg.instr,
+			incrementedPC: exmemReg.incrementedPC,
+			writeVal: result,
+		}	
+
 	// All other instructions
 	default:
 		out <- &MEMWBReg {

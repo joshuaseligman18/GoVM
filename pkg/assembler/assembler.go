@@ -56,10 +56,10 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		case "ADDI", "ADDIS", "SUBI", "SUBIS":
 			instrBin = instrI(opcode, operands, filePath, instrIndex + 1)
 		// D instructions
-		case "LDUR":
+		case "LDUR", "LDURB":
 			instrBin = instrD(opcode, operands, filePath, instrIndex + 1)
 		case "DATA":
-			instrBin = instrData(opcode, operands, filePath, instrIndex + 1)
+			instrBin = instrData(operands, filePath, instrIndex + 1)
 		}
 
 		// Add the instruction to the program
@@ -222,11 +222,13 @@ func instrD(opcode string, operands []string, fileName string, lineNumber int) u
 	switch opcode {
 	case "LDUR":
 		outBin = 0b11111000010
+	case "LDURB":
+		outBin = 0b00111000010
 	}
 
 	// Generate the remaining binary based on the instruction
 	switch opcode {
-	case "LDUR":
+	case "LDUR", "LDURB":
 		// Get the immediate value for adding
 		val := getValue(operands[2], 9, "destination address", fileName, lineNumber)
 		outBin = outBin << 9 | uint32(val)
@@ -248,7 +250,7 @@ func instrD(opcode string, operands []string, fileName string, lineNumber int) u
 }
 
 // Generates the binary for constant data
-func instrData(opcode string, operands []string, fileName string, lineNumber int) uint32 {
+func instrData(operands []string, fileName string, lineNumber int) uint32 {
 	// Make sure we only have 1 number
 	if len(operands) != 1 {
 		errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
