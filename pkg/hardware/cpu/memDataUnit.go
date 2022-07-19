@@ -3,6 +3,7 @@ package cpu
 import (
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
+	"github.com/joshuaseligman/GoVM/pkg/util"
 )
 
 // Struct for the memory data unit
@@ -57,6 +58,19 @@ func (mdu *MemDataUnit) HandleMemoryAccess(out chan *MEMWBReg, exmemReg *EXMEMRe
 			incrementedPC: exmemReg.incrementedPC,
 			writeVal: result,
 		}
+
+	case 0x5C4: // LDURSW
+		// Set the address and read the next 64 bits
+		mdu.mmu.SetMar(exmemReg.writeVal)
+		mdu.mmu.CallRead()
+		// Get first 32 bits
+		orig := uint32(mdu.mmu.GetMdr() >> 32)
+		result := util.SignExtend(orig)
+		out <- &MEMWBReg {
+			instr: exmemReg.instr,
+			incrementedPC: exmemReg.incrementedPC,
+			writeVal: result,
+		}	
 
 	// All other instructions
 	default:

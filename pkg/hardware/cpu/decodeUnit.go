@@ -137,7 +137,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		}
 
 	case 0x7C2, 0x1C2, // LDUR, LDURB
-		 0x3C2: // LDURH
+		 0x3C2, 0x5C4: // LDURH, LDURSW
 		// Get the immediate value
 		immediate := ifidReg.instr & 0x1FFFFF >> 12
 		signExtendImm := util.SignExtend(immediate)
