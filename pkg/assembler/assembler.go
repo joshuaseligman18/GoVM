@@ -268,6 +268,10 @@ func getRegister(regString string, fileName string, lineNumber int) int64 {
 	// Get the register for the operation
 	reg, errConv := strconv.ParseInt(regString[1:], 10, 0)
 	if errConv != nil {
+		// Account for XZR register
+		if regString[1:] == "ZR" {
+			return 0x1F
+		}
 		// Bad value error
 		errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
 		log.Fatal(errMsg)

@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 )
@@ -30,6 +31,10 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 	case 0x694, 0x695, 0x696, 0x697: // MOVZ
 		// Register to write to
 		regWrite := ifidReg.instr & 0x1F
+		if regWrite == 0x1F {
+			log.Fatalf("Bad regsiter write; cannot write to register XZR; PC: %d", ifidReg.incrementedPC - 4)
+		}
+		
 		// Immediate to write
 		immediate := ifidReg.instr & 0x1FFFFF >> 5
 		
@@ -50,6 +55,9 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 	case 0x794, 0x795, 0x796, 0x797: // MOVK
 		// Register to write to
 		regWrite := ifidReg.instr & 0x1F
+		if regWrite == 0x1F {
+			log.Fatalf("Bad regsiter write; cannot write to register XZR; PC: %d", ifidReg.incrementedPC - 4)
+		}
 
 		// Wait until the updated value is written
 		for idu.cpu.GetRegisterLocks().Contains(regWrite) {
@@ -84,6 +92,9 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 
 		// Add the write register to the queue
 		regWrite := ifidReg.instr & 0x1F
+		if regWrite == 0x1F {
+			log.Fatalf("Bad regsiter write; cannot write to register XZR; PC: %d", ifidReg.incrementedPC - 4)
+		}
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
 		out <- &IDEXReg {
@@ -111,6 +122,9 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 
 		// Add the destination register to the queue
 		regWrite := ifidReg.instr & 0x1F
+		if regWrite == 0x1F {
+			log.Fatalf("Bad regsiter write; cannot write to register XZR; PC: %d", ifidReg.incrementedPC - 4)
+		}
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
 		out <- &IDEXReg {
@@ -135,6 +149,9 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 
 		// Add the destination register to the queue
 		regWrite := ifidReg.instr & 0x1F
+		if regWrite == 0x1F {
+			log.Fatalf("Bad regsiter write; cannot write to register XZR; PC: %d", ifidReg.incrementedPC - 4)
+		}
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
 		out <- &IDEXReg {
