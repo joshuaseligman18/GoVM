@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
+	"github.com/joshuaseligman/GoVM/pkg/util"
 )
 
 // Struct for the decode unit
@@ -34,7 +35,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		if regWrite == 0x1F {
 			log.Fatalf("Bad regsiter write; cannot write to register XZR; PC: %d", ifidReg.incrementedPC - 4)
 		}
-		
+
 		// Immediate to write
 		immediate := ifidReg.instr & 0x1FFFFF >> 5
 		
@@ -49,7 +50,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 			incrementedPC: ifidReg.incrementedPC,
 			regReadData1: 0,
 			regReadData2: 0,
-			signExtendImm: signExtend(immediate), // Should always be positive
+			signExtendImm: util.SignExtend(immediate), // Should always be positive
 		}
 
 	case 0x794, 0x795, 0x796, 0x797: // MOVK
@@ -74,7 +75,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 			incrementedPC: ifidReg.incrementedPC,
 			regReadData1: regReadData1,
 			regReadData2: 0,
-			signExtendImm: signExtend(immediate), // Should always be positive
+			signExtendImm: util.SignExtend(immediate), // Should always be positive
 		}
 
 	case 0x458, 0x558, 0x658, 0x758: // ADD, ADDS, SUB
@@ -111,7 +112,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		 0x788, 0x789: // SUBIS
 		// Get the immediate value
 		immediate := ifidReg.instr & 0x3FFFFF >> 10
-		signExtendImm := signExtend(immediate)
+		signExtendImm := util.SignExtend(immediate)
 
 		// Get the most updated read value
 		regRead := ifidReg.instr & 0x3FF >> 5
@@ -138,7 +139,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 	case 0x7C2, 0x1C2: // LDUR, LDURB
 		// Get the immediate value
 		immediate := ifidReg.instr & 0x1FFFFF >> 12
-		signExtendImm := signExtend(immediate)
+		signExtendImm := util.SignExtend(immediate)
 
 		// Get the most updated value to work with
 		regRead := ifidReg.instr & 0x3FF >> 5
@@ -167,18 +168,4 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 // Logs a message
 func (idu *DecodeUnit) Log(msg string) {
 	idu.hw.Log(msg)
-}
-
-// Sign extends a uint32 to a uint64
-func signExtend(val uint32) uint64 {
-	// Get the sign
-	sign := uint64(val >> 31)
-	longSign := uint64(0)
-	// Repeat it 32 times
-	for i := 0; i < 32; i++ {
-		longSign = longSign << 1 | sign
-	}
-	// Combine the original value with the long sign
-	result := longSign << 32 | uint64(val)
-	return result
 }

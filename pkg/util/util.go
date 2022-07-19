@@ -55,3 +55,17 @@ func ConvertToHexUint8(num uint8) string {
 func GetCurrentTime() int64 {
 	return time.Now().UnixNano() / int64(time.Millisecond)
 }
+
+// Sign extends a uint32 to a uint64
+func SignExtend(val uint32) uint64 {
+	// Get the sign
+	sign := uint64(val >> 31)
+	longSign := uint64(0)
+	// Repeat it 32 times
+	for i := 0; i < 32; i++ {
+		longSign = longSign << 1 | sign
+	}
+	// Combine the original value with the long sign
+	result := longSign << 32 | uint64(val)
+	return result
+}
