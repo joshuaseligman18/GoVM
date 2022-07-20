@@ -58,6 +58,9 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		// D instructions
 		case "LDUR", "LDURB", "LDURH", "LDURSW", "STUR", "STURB", "STURH", "STURW":
 			instrBin = instrD(opcode, operands, filePath, instrIndex + 1)
+		case "B":
+			instrBin = instrB(opcode, operands, filePath, instrIndex + 1)
+		// Constant data
 		case "DATA":
 			instrBin = instrData(operands, filePath, instrIndex + 1)
 		}
@@ -251,6 +254,29 @@ func instrD(opcode string, operands []string, fileName string, lineNumber int) u
 	outBin = outBin << 5 | uint32(destReg)
 
 	// Return the instruction binary
+	return outBin
+}
+
+// Generates the binary for branch instructions
+func instrB(opcode string, operands []string, fileName string, lineNumber int) uint32 {
+	// Make sure we only have 1 number
+	if len(operands) != 1 {
+		errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
+		log.Fatal(errMsg)
+	}
+
+	outBin := uint32(0)
+
+	// Generate initial binary
+	switch opcode {
+	case "B":
+		outBin = 0b000101
+	}
+
+	// Get the relative branch address
+	branchAddr := uint32(getValue(operands[0], 26, "branch address", fileName, lineNumber))
+	outBin = outBin << 26 | branchAddr
+
 	return outBin
 }
 
