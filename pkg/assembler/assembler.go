@@ -56,7 +56,7 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		case "ADDI", "ADDIS", "SUBI", "SUBIS":
 			instrBin = instrI(opcode, operands, filePath, instrIndex + 1)
 		// D instructions
-		case "LDUR", "LDURB", "LDURH", "LDURSW", "STUR", "STURB", "STURH":
+		case "LDUR", "LDURB", "LDURH", "LDURSW", "STUR", "STURB", "STURH", "STURW":
 			instrBin = instrD(opcode, operands, filePath, instrIndex + 1)
 		case "DATA":
 			instrBin = instrData(operands, filePath, instrIndex + 1)
@@ -231,6 +231,8 @@ func instrD(opcode string, operands []string, fileName string, lineNumber int) u
 		outBin = 0b00111000000
 	case "STURH":
 		outBin = 0b01111000000
+	case "STURW":
+		outBin = 0b10111000000
 	}
 
 	// Get the immediate value for adding

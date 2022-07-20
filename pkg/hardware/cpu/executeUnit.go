@@ -143,7 +143,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 		}
 
 	case 0x7C0, 0x1C0, // STUR, STURB
-		 0x3C0: // STURH
+		 0x3C0, 0x5C0: // STURH, STURW
 		// Get the address to load from
 		output := exu.alu.Add(idexReg.regReadData1, idexReg.signExtendImm)
 		exu.alu.ClearFlags()
