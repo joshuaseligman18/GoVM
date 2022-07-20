@@ -70,7 +70,17 @@ func (mdu *MemDataUnit) HandleMemoryAccess(out chan *MEMWBReg, exmemReg *EXMEMRe
 			instr: exmemReg.instr,
 			incrementedPC: exmemReg.incrementedPC,
 			writeVal: result,
-		}	
+		}
+
+	case 0x7C0: // STUR
+		// Set the address and read the next 64 bits
+		mdu.mmu.SetMar(exmemReg.workingAddr)
+		mdu.mmu.SetMdr(exmemReg.writeVal)
+		mdu.mmu.CallWrite(64)
+		out <- &MEMWBReg {
+			instr: exmemReg.instr,
+			incrementedPC: exmemReg.incrementedPC,
+		}
 
 	// All other instructions
 	default:

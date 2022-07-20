@@ -163,6 +163,28 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 			regReadData2: 0,
 			signExtendImm: signExtendImm,
 		}
+	
+	case 0x7C0:
+		// Get the immediate value
+		immediate := ifidReg.instr & 0x1FFFFF >> 12
+		signExtendImm := util.SignExtend(immediate)
+
+		// Get the most updated values to work with
+		regRead1 := ifidReg.instr & 0x3FF >> 5
+		regRead2 := ifidReg.instr & 0x1F
+		for idu.cpu.GetRegisterLocks().Contains(regRead1) || idu.cpu.GetRegisterLocks().Contains(regRead2){
+			continue
+		}
+		regData1 := idu.cpu.GetRegisters()[regRead1]
+		regData2 := idu.cpu.GetRegisters()[regRead2]
+
+		out <- &IDEXReg {
+			instr: ifidReg.instr,
+			incrementedPC: ifidReg.incrementedPC,
+			regReadData1: regData1,
+			regReadData2: regData2,
+			signExtendImm: signExtendImm,
+		}
 	}
 }
 

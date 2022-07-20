@@ -141,6 +141,18 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			incrementedPC: idexReg.incrementedPC,
 			workingAddr: output,
 		}
+
+	case 0x7C0: // STUR
+		// Get the address to load from
+		output := exu.alu.Add(idexReg.regReadData1, idexReg.signExtendImm)
+		exu.alu.ClearFlags()
+		
+		out <- &EXMEMReg {
+			instr: idexReg.instr,
+			incrementedPC: idexReg.incrementedPC,
+			workingAddr: output,
+			writeVal: idexReg.regReadData2,
+		}
 	}
 }
 
