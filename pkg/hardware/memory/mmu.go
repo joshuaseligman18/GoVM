@@ -33,9 +33,11 @@ func (mmu *Mmu) CallRead() {
 }
 
 // Sends the signal to memory to write the value in the MDR to the address of the MAR
-func (mmu *Mmu) CallWrite() {
-	for i := 0; i < 8; i++ {
-		data := uint8((mmu.mdr >> (i * 8)) & 0xFF)
+func (mmu *Mmu) CallWrite(sizeToWrite int) {
+	val := mmu.mdr
+	for i := sizeToWrite / 4 - 1; i >= 0; i-- {
+		data := uint8(val & 0xFF)
+		val = val >> 8
 		mmu.memory.Write(mmu.mar + uint64(i), data)
 	}
 }
