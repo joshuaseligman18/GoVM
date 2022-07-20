@@ -50,7 +50,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 			incrementedPC: ifidReg.incrementedPC,
 			regReadData1: 0,
 			regReadData2: 0,
-			signExtendImm: util.SignExtend(immediate), // Should always be positive
+			signExtendImm: util.SignExtend(immediate, 32), // Should always be positive
 		}
 
 	case 0x794, 0x795, 0x796, 0x797: // MOVK
@@ -75,7 +75,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 			incrementedPC: ifidReg.incrementedPC,
 			regReadData1: regReadData1,
 			regReadData2: 0,
-			signExtendImm: util.SignExtend(immediate), // Should always be positive
+			signExtendImm: util.SignExtend(immediate, 32), // Should always be positive
 		}
 
 	case 0x458, 0x558, 0x658, 0x758: // ADD, ADDS, SUB
@@ -112,7 +112,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		 0x788, 0x789: // SUBIS
 		// Get the immediate value
 		immediate := ifidReg.instr & 0x3FFFFF >> 10
-		signExtendImm := util.SignExtend(immediate)
+		signExtendImm := util.SignExtend(immediate, 32)
 
 		// Get the most updated read value
 		regRead := ifidReg.instr & 0x3FF >> 5
@@ -140,7 +140,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		 0x3C2, 0x5C4: // LDURH, LDURSW
 		// Get the immediate value
 		immediate := ifidReg.instr & 0x1FFFFF >> 12
-		signExtendImm := util.SignExtend(immediate)
+		signExtendImm := util.SignExtend(immediate, 8)
 
 		// Get the most updated value to work with
 		regRead := ifidReg.instr & 0x3FF >> 5
@@ -168,7 +168,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		 0x3C0, 0x5C0: // STURH, STURW
 		// Get the immediate value
 		immediate := ifidReg.instr & 0x1FFFFF >> 12
-		signExtendImm := util.SignExtend(immediate)
+		signExtendImm := util.SignExtend(immediate, 8)
 
 		// Get the most updated values to work with
 		regRead1 := ifidReg.instr & 0x3FF >> 5

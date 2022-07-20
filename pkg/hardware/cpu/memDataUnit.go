@@ -65,7 +65,7 @@ func (mdu *MemDataUnit) HandleMemoryAccess(out chan *MEMWBReg, exmemReg *EXMEMRe
 		mdu.mmu.CallRead()
 		// Get first 32 bits
 		orig := uint32(mdu.mmu.GetMdr() >> 32)
-		result := util.SignExtend(orig)
+		result := util.SignExtend(orig, 32)
 		out <- &MEMWBReg {
 			instr: exmemReg.instr,
 			incrementedPC: exmemReg.incrementedPC,
