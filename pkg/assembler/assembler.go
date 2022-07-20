@@ -56,7 +56,7 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		case "ADDI", "ADDIS", "SUBI", "SUBIS":
 			instrBin = instrI(opcode, operands, filePath, instrIndex + 1)
 		// D instructions
-		case "LDUR", "LDURB", "LDURH", "LDURSW", "STUR", "STURB":
+		case "LDUR", "LDURB", "LDURH", "LDURSW", "STUR", "STURB", "STURH":
 			instrBin = instrD(opcode, operands, filePath, instrIndex + 1)
 		case "DATA":
 			instrBin = instrData(operands, filePath, instrIndex + 1)
@@ -208,12 +208,9 @@ func instrI(opcode string, operands []string, fileName string, lineNumber int) u
 // Generates the binary for D instructions
 func instrD(opcode string, operands []string, fileName string, lineNumber int) uint32 {
 	// Make sure we have the right number of operands
-	switch opcode {
-	case "ADDI", "ADDIS", "SUBI":
-		if len(operands) != 3 {
-			errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
-			log.Fatal(errMsg)
-		}
+	if len(operands) != 3 {
+		errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
+		log.Fatal(errMsg)
 	}
 
 	outBin := uint32(0)
@@ -232,26 +229,24 @@ func instrD(opcode string, operands []string, fileName string, lineNumber int) u
 		outBin = 0b11111000000
 	case "STURB":
 		outBin = 0b00111000000
+	case "STURH":
+		outBin = 0b01111000000
 	}
 
-	// Generate the remaining binary based on the instruction
-	switch opcode {
-	case "LDUR", "LDURB", "LDURH", "LDURSW", "STUR", "STURB":
-		// Get the immediate value for adding
-		val := getValue(operands[2], 9, "destination address", fileName, lineNumber)
-		outBin = outBin << 9 | uint32(val)
+	// Get the immediate value for adding
+	val := getValue(operands[2], 9, "destination address", fileName, lineNumber)
+	outBin = outBin << 9 | uint32(val)
 
-		// Op is always 0
-		outBin = outBin << 2
+	// Op is always 0
+	outBin = outBin << 2
 
-		// Get the register for the operation
-		reg1 := getRegister(operands[1], fileName, lineNumber)
-		outBin = outBin << 5 | uint32(reg1)
+	// Get the register for the operation
+	reg1 := getRegister(operands[1], fileName, lineNumber)
+	outBin = outBin << 5 | uint32(reg1)
 
-		// Get the destination register for the operation
-		destReg := getRegister(operands[0], fileName, lineNumber)
-		outBin = outBin << 5 | uint32(destReg)
-	}
+	// Get the destination register for the operation
+	destReg := getRegister(operands[0], fileName, lineNumber)
+	outBin = outBin << 5 | uint32(destReg)
 
 	// Return the instruction binary
 	return outBin

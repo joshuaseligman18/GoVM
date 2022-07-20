@@ -22,7 +22,7 @@ func (wbu *WritebackUnit) HandleWriteback(out chan bool, memwbReg *MEMWBReg) {
 	opcode := memwbReg.instr >> 21
 
 	switch opcode {
-	case 0x7C0, 0x1C0: // STURB
+	case 0x7C0, 0x1C0, 0x3C0: // STUR, STURB, STURH
 		break
 	default:
 		reg := wbu.cpu.GetRegisterLocks().Dequeue()
