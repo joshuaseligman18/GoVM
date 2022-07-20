@@ -91,9 +91,10 @@ func NewGuiData(trackedCpu *cpu.Cpu) *GuiData {
 	guiData.idexLabels[4] = widget.NewLabel(fmt.Sprintf("Sign Extended Imm: %s", util.ConvertToHexUint64(0)))
 
 	// Create the EXMEM labels
-	guiData.exmemLablels = make([]*widget.Label, 2)
+	guiData.exmemLablels = make([]*widget.Label, 3)
 	guiData.exmemLablels[0] = widget.NewLabel(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0)))
 	guiData.exmemLablels[1] = widget.NewLabel(fmt.Sprintf("Write value: %s", util.ConvertToHexUint64(0)))
+	guiData.exmemLablels[2] = widget.NewLabel(fmt.Sprintf("Working Address: %s", util.ConvertToHexUint64(0)))
 	
 	// Create the MEMWB labels
 	guiData.memwbLabels = make([]*widget.Label, 2)
@@ -168,9 +169,11 @@ func (guiData *GuiData) Pulse() {
 	if guiData.cpu.GetEXMEMReg() != nil {
 		guiData.exmemLablels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(guiData.cpu.GetEXMEMReg().GetInstruction())))
 		guiData.exmemLablels[1].SetText(fmt.Sprintf("Write value: %s", util.ConvertToHexUint64(guiData.cpu.GetEXMEMReg().GetWriteVal())))
+		guiData.exmemLablels[2].SetText(fmt.Sprintf("Working Address: %s", util.ConvertToHexUint64(guiData.cpu.GetEXMEMReg().GetWorkingAddr())))
 	} else {
 		guiData.exmemLablels[0].SetText(fmt.Sprintf("Instruction: %s", util.ConvertToHexUint32(0)))
 		guiData.exmemLablels[1].SetText(fmt.Sprintf("Write value: %s", util.ConvertToHexUint64(0)))
+		guiData.exmemLablels[2].SetText(fmt.Sprintf("Working Address: %s", util.ConvertToHexUint64(0)))
 	}
 
 	// Update the MEMWB values

@@ -139,7 +139,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 		out <- &EXMEMReg {
 			instr: idexReg.instr,
 			incrementedPC: idexReg.incrementedPC,
-			writeVal: output,
+			workingAddr: output,
 		}
 	}
 }

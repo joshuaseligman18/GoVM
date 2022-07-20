@@ -55,6 +55,7 @@ type EXMEMReg struct {
 	instr uint32 // The instruction
 	incrementedPC uint64 // The incremented program counter
 	writeVal uint64 // The value to write
+	workingAddr uint64 // The address to work with
 }
 
 // Gets the instruction in the IDEX register
@@ -70,6 +71,11 @@ func (exmemReg *EXMEMReg) GetIncrementedPC() uint64 {
 // Gets the value to be written
 func (exmemReg *EXMEMReg) GetWriteVal() uint64 {
 	return exmemReg.writeVal
+}
+
+// Gets the memory address to work with
+func (exmemReg *EXMEMReg) GetWorkingAddr() uint64 {
+	return exmemReg.workingAddr
 }
 
 // Struct for the data passed between the execute and memory units

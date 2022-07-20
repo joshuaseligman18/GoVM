@@ -27,7 +27,7 @@ func (mdu *MemDataUnit) HandleMemoryAccess(out chan *MEMWBReg, exmemReg *EXMEMRe
 	// Memory access instructions
 	case 0x7C2: // LDUR
 		// Set the address and read the next 64 bits
-		mdu.mmu.SetMar(exmemReg.writeVal)
+		mdu.mmu.SetMar(exmemReg.workingAddr)
 		mdu.mmu.CallRead()
 		out <- &MEMWBReg {
 			instr: exmemReg.instr,
@@ -37,7 +37,7 @@ func (mdu *MemDataUnit) HandleMemoryAccess(out chan *MEMWBReg, exmemReg *EXMEMRe
 
 	case 0x1C2: // LDURB
 		// Set the address and read the next 64 bits
-		mdu.mmu.SetMar(exmemReg.writeVal)
+		mdu.mmu.SetMar(exmemReg.workingAddr)
 		mdu.mmu.CallRead()
 		// Return only the first 8 bits
 		result := mdu.mmu.GetMdr() >> 56
@@ -49,7 +49,7 @@ func (mdu *MemDataUnit) HandleMemoryAccess(out chan *MEMWBReg, exmemReg *EXMEMRe
 
 	case 0x3C2: // LDURH
 		// Set the address and read the next 64 bits
-		mdu.mmu.SetMar(exmemReg.writeVal)
+		mdu.mmu.SetMar(exmemReg.workingAddr)
 		mdu.mmu.CallRead()
 		// Return only the first 16 bits
 		result := mdu.mmu.GetMdr() >> 48
@@ -61,7 +61,7 @@ func (mdu *MemDataUnit) HandleMemoryAccess(out chan *MEMWBReg, exmemReg *EXMEMRe
 
 	case 0x5C4: // LDURSW
 		// Set the address and read the next 64 bits
-		mdu.mmu.SetMar(exmemReg.writeVal)
+		mdu.mmu.SetMar(exmemReg.workingAddr)
 		mdu.mmu.CallRead()
 		// Get first 32 bits
 		orig := uint32(mdu.mmu.GetMdr() >> 32)
