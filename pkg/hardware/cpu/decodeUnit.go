@@ -187,6 +187,17 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 			signExtendImm: signExtendImm,
 		}
 	}
+	// Branch instructions
+	if opcode >= 0x0A0 && opcode <= 0x0BF { // B
+		branchAddr := ifidReg.instr & 0x3FFFFFF
+		signExtendBranchAddr := util.SignExtend(branchAddr, 26)
+
+		out <- &IDEXReg {
+			instr: ifidReg.instr,
+			incrementedPC: ifidReg.incrementedPC,
+			signExtendImm: signExtendBranchAddr,
+		}
+	}
 }
 
 // Logs a message
