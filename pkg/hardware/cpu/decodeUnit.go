@@ -49,6 +49,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
+			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
 			out <- &IDEXReg {
@@ -80,6 +81,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
+			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
 			out <- &IDEXReg {
@@ -113,6 +115,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
+			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
 			out <- &IDEXReg {
@@ -148,6 +151,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
+			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
 			out <- &IDEXReg {
@@ -181,6 +185,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
+			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
 			out <- &IDEXReg {

@@ -48,6 +48,18 @@ func (queue *Queue) Contains(val uint32) bool {
 	return false
 }
 
+// Function that removes the last item in the queue
+func (queue *Queue) RemoveLast() {
+	cur := queue.head
+	if cur == nil || cur.next == nil {
+		queue.head = nil
+	}
+	for cur.next.next != nil {
+		cur = cur.next
+	}
+	cur.next = nil
+}
+
 // Gets the head of the queue
 func (queue *Queue) GetHead() *Node {
 	return queue.head
