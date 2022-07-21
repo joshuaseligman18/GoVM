@@ -113,13 +113,23 @@ func (cpu *Cpu) Pulse() {
 
 // Function to stop the pipeline
 func (cpu *Cpu) FlushPipeline(newPC uint64) {
-	pipelineFlushWg.Add(2)
-	pipelineFlushChan <- true
-	pipelineFlushChan <- true
+	wgNum := 0
+	if len(ifidChan) == 0 {
+		wgNum++
+	}
+	if len(idexChan) == 0 {
+		wgNum++
+	}
+	pipelineFlushWg.Add(wgNum)
+	for i := 0; i < wgNum; i++ {
+		pipelineFlushChan <- true
+	}
 	close(ifidChan)
 	close(idexChan)
 	pipelineFlushWg.Wait()
 
+	close(pipelineFlushChan)
+	pipelineFlushChan = make(chan bool, 2)
 	cpu.programCounter = newPC
 	ifidChan = make(chan *IFIDReg, 1)
 	idexChan = make(chan *IDEXReg, 1)
