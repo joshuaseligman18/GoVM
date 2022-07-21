@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
@@ -37,6 +38,8 @@ var (
 	executeRunning bool = false // Determines if the execute unit is currently running
 	memRunning bool = false // Determines if the mem data unit is currently running
 	writebackRunning bool = false // Determines if the writeback unit is currently running
+	pipelineFlushWg sync.WaitGroup // The waitgroup to make sure the pipeline is flushed before resuming operations
+	pipelineFlushChan chan bool = make(chan bool, 2) // The signal sent to flush the pipeline
 )
 
 // Creates the CPU
@@ -47,11 +50,11 @@ func NewCpu(mem *memory.Memory) *Cpu {
 		reg: make([]uint64, 32),
 		programCounter: 0,
 		fetchUnit: NewFetchUnit(mem),
-		executeUnit: NewExecuteUnit(),
 		memDataUnit: NewMemDataUnit(mem),
 		regLocks: util.NewQueue(),
 	}
 	cpu.decodeUnit = NewDecodeUnit(&cpu)
+	cpu.executeUnit = NewExecuteUnit(&cpu)
 	cpu.writebackUnit = NewWritebackUnit(&cpu)
 	return &cpu
 }
@@ -96,16 +99,32 @@ func (cpu *Cpu) Pulse() {
 		cpu.ifidReg = <- ifidChan
 		fetchRunning = false
 		cpu.Log(fmt.Sprintf("Starting decode: %d", cpu.ifidReg.incrementedPC - 4))
-		go cpu.decodeUnit.DecodeInstruction(idexChan, cpu.ifidReg)
+		go cpu.decodeUnit.DecodeInstruction(idexChan, cpu.ifidReg, pipelineFlushChan, &pipelineFlushWg)
 		decodeRunning = true
 	}
 
 	// Fetch if available
 	if len(ifidChan) == 0 && !fetchRunning {
 		cpu.Log(fmt.Sprintf("Starting fetch: %d", cpu.programCounter))
-		go cpu.fetchUnit.FetchInstruction(ifidChan, &cpu.programCounter)
+		go cpu.fetchUnit.FetchInstruction(ifidChan, &cpu.programCounter, pipelineFlushChan, &pipelineFlushWg)
 		fetchRunning = true
 	}
+}
+
+// Function to stop the pipeline
+func (cpu *Cpu) FlushPipeline(newPC uint64) {
+	pipelineFlushWg.Add(2)
+	pipelineFlushChan <- true
+	pipelineFlushChan <- true
+	close(ifidChan)
+	close(idexChan)
+	pipelineFlushWg.Wait()
+
+	cpu.programCounter = newPC
+	ifidChan = make(chan *IFIDReg, 1)
+	idexChan = make(chan *IDEXReg, 1)
+	fetchRunning = false
+	decodeRunning = false
 }
 
 // Logs a message

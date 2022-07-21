@@ -3,6 +3,7 @@ package cpu
 import (
 	"fmt"
 	"log"
+	"sync"
 
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 	"github.com/joshuaseligman/GoVM/pkg/util"
@@ -24,7 +25,7 @@ func NewDecodeUnit(parentCpu *Cpu) *DecodeUnit {
 }
 
 // Function that decodes an instruction into its operands
-func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
+func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, flushChan chan bool, flushWg *sync.WaitGroup) {
 	opcode := ifidReg.instr >> 21
 	idu.Log(fmt.Sprintf("%X", opcode))
 	switch opcode {
@@ -45,12 +46,18 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		}
 
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
-		out <- &IDEXReg {
-			instr: ifidReg.instr,
-			incrementedPC: ifidReg.incrementedPC,
-			regReadData1: 0,
-			regReadData2: 0,
-			signExtendImm: util.SignExtend(immediate, 32), // Should always be positive
+
+		if len(flushChan) > 0 {
+			idu.Log("Flushing")
+			flushWg.Done()
+		} else {
+			out <- &IDEXReg {
+				instr: ifidReg.instr,
+				incrementedPC: ifidReg.incrementedPC,
+				regReadData1: 0,
+				regReadData2: 0,
+				signExtendImm: util.SignExtend(immediate, 32), // Should always be positive
+			}
 		}
 
 	case 0x794, 0x795, 0x796, 0x797: // MOVK
@@ -70,12 +77,18 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		immediate := ifidReg.instr & 0x1FFFFF >> 5
 		
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
-		out <- &IDEXReg {
-			instr: ifidReg.instr,
-			incrementedPC: ifidReg.incrementedPC,
-			regReadData1: regReadData1,
-			regReadData2: 0,
-			signExtendImm: util.SignExtend(immediate, 32), // Should always be positive
+
+		if len(flushChan) > 0 {
+			idu.Log("Flushing")
+			flushWg.Done()
+		} else {
+			out <- &IDEXReg {
+				instr: ifidReg.instr,
+				incrementedPC: ifidReg.incrementedPC,
+				regReadData1: regReadData1,
+				regReadData2: 0,
+				signExtendImm: util.SignExtend(immediate, 32), // Should always be positive
+			}
 		}
 
 	case 0x458, 0x558, 0x658, 0x758: // ADD, ADDS, SUB
@@ -98,12 +111,17 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		}
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
-		out <- &IDEXReg {
-			instr: ifidReg.instr,
-			incrementedPC: ifidReg.incrementedPC,
-			regReadData1: regData1,
-			regReadData2: regData2,
-			signExtendImm: 0,
+		if len(flushChan) > 0 {
+			idu.Log("Flushing")
+			flushWg.Done()
+		} else {
+			out <- &IDEXReg {
+				instr: ifidReg.instr,
+				incrementedPC: ifidReg.incrementedPC,
+				regReadData1: regData1,
+				regReadData2: regData2,
+				signExtendImm: 0,
+			}
 		}
 
 	case 0x488, 0x489, // ADDI
@@ -128,12 +146,17 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		}
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
-		out <- &IDEXReg {
-			instr: ifidReg.instr,
-			incrementedPC: ifidReg.incrementedPC,
-			regReadData1: regData1,
-			regReadData2: 0,
-			signExtendImm: signExtendImm,
+		if len(flushChan) > 0 {
+			idu.Log("Flushing")
+			flushWg.Done()
+		} else {
+			out <- &IDEXReg {
+				instr: ifidReg.instr,
+				incrementedPC: ifidReg.incrementedPC,
+				regReadData1: regData1,
+				regReadData2: 0,
+				signExtendImm: signExtendImm,
+			}
 		}
 
 	case 0x7C2, 0x1C2, // LDUR, LDURB
@@ -156,12 +179,17 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		}
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
-		out <- &IDEXReg {
-			instr: ifidReg.instr,
-			incrementedPC: ifidReg.incrementedPC,
-			regReadData1: regData1,
-			regReadData2: 0,
-			signExtendImm: signExtendImm,
+		if len(flushChan) > 0 {
+			idu.Log("Flushing")
+			flushWg.Done()
+		} else {
+			out <- &IDEXReg {
+				instr: ifidReg.instr,
+				incrementedPC: ifidReg.incrementedPC,
+				regReadData1: regData1,
+				regReadData2: 0,
+				signExtendImm: signExtendImm,
+			}
 		}
 	
 	case 0x7C0, 0x1C0, // STUR, STURB
@@ -179,12 +207,18 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		regData1 := idu.cpu.GetRegisters()[regRead1]
 		regData2 := idu.cpu.GetRegisters()[regRead2]
 
-		out <- &IDEXReg {
-			instr: ifidReg.instr,
-			incrementedPC: ifidReg.incrementedPC,
-			regReadData1: regData1,
-			regReadData2: regData2,
-			signExtendImm: signExtendImm,
+
+		if len(flushChan) > 0 {
+			idu.Log("Flushing")
+			flushWg.Done()
+		} else {
+			out <- &IDEXReg {
+				instr: ifidReg.instr,
+				incrementedPC: ifidReg.incrementedPC,
+				regReadData1: regData1,
+				regReadData2: regData2,
+				signExtendImm: signExtendImm,
+			}
 		}
 	}
 	// Branch instructions
@@ -192,10 +226,15 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		branchAddr := ifidReg.instr & 0x3FFFFFF
 		signExtendBranchAddr := util.SignExtend(branchAddr, 26)
 
-		out <- &IDEXReg {
-			instr: ifidReg.instr,
-			incrementedPC: ifidReg.incrementedPC,
-			signExtendImm: signExtendBranchAddr,
+		if len(flushChan) > 0 {
+			idu.Log("Flushing")
+			flushWg.Done()
+		} else {
+			out <- &IDEXReg {
+				instr: ifidReg.instr,
+				incrementedPC: ifidReg.incrementedPC,
+				signExtendImm: signExtendBranchAddr,
+			}
 		}
 	}
 }

@@ -10,13 +10,15 @@ import (
 // Struct for the execute unit
 type ExecuteUnit struct {
 	hw *hardware.Hardware // The hardware component
-	alu *Alu
+	cpu *Cpu // The CPU
+	alu *Alu // The ALU
 }
 
 // Function that creates the execute unit
-func NewExecuteUnit() *ExecuteUnit {
+func NewExecuteUnit(cpuPtr *Cpu) *ExecuteUnit {
 	exu := ExecuteUnit {
 		hw: hardware.NewHardware("EXU", 0),
+		cpu: cpuPtr,
 		alu: NewAlu(),
 	}
 	return &exu
@@ -153,6 +155,15 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			incrementedPC: idexReg.incrementedPC,
 			workingAddr: output,
 			writeVal: idexReg.regReadData2,
+		}
+	}
+
+	if opcode >= 0x0A0 && opcode <= 0x0BF { // B
+		newPC := exu.alu.Add(idexReg.incrementedPC, idexReg.signExtendImm)
+		go exu.cpu.FlushPipeline(newPC)
+		out <- &EXMEMReg {
+			instr: idexReg.instr,
+			incrementedPC: idexReg.incrementedPC,
 		}
 	}
 }

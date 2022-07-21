@@ -21,6 +21,11 @@ func NewWritebackUnit(parentCpu *Cpu) *WritebackUnit {
 func (wbu *WritebackUnit) HandleWriteback(out chan bool, memwbReg *MEMWBReg) {
 	opcode := memwbReg.instr >> 21
 
+	if opcode >= 0x0A0 && opcode <= 0x0BF { // B
+		out <- true
+		return
+	}
+
 	switch opcode {
 	case 0x7C0, 0x1C0, 0x3C0, 0x5C0: // STUR, STURB, STURH, STURW
 		break

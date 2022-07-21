@@ -1,6 +1,8 @@
 package cpu
 
 import (
+	"sync"
+
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
 	"github.com/joshuaseligman/GoVM/pkg/util"
@@ -20,14 +22,20 @@ func NewFetchUnit(mem *memory.Memory) *FetchUnit {
 }
 
 // Fetches the instruction from memory
-func (ifu *FetchUnit) FetchInstruction(out chan *IFIDReg, addr *uint64) {
+func (ifu *FetchUnit) FetchInstruction(out chan *IFIDReg, addr *uint64, flushChan chan bool, flushWg *sync.WaitGroup) {
 	ifu.mmu.SetMar(*addr)
 	ifu.mmu.CallRead()
 	ifu.Log(util.ConvertToHexUint32(uint32(ifu.mmu.GetMdr() >> 32)))
 	*addr += 4
-	out <- &IFIDReg {
-		instr: uint32(ifu.mmu.GetMdr() >> 32),
-		incrementedPC: *addr,
+
+	if len(flushChan) > 0 {
+		ifu.Log("Flushing")
+		flushWg.Done()
+	} else {
+		out <- &IFIDReg {
+			instr: uint32(ifu.mmu.GetMdr() >> 32),
+			incrementedPC: *addr,
+		}
 	}
 }
 
