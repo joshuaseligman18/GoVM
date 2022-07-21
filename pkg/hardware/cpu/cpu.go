@@ -131,6 +131,8 @@ func (cpu *Cpu) FlushPipeline(newPC uint64) {
 	close(pipelineFlushChan)
 	pipelineFlushChan = make(chan bool, 2)
 	cpu.programCounter = newPC
+	cpu.ifidReg = nil
+	cpu.idexReg = nil
 	ifidChan = make(chan *IFIDReg, 1)
 	idexChan = make(chan *IDEXReg, 1)
 	fetchRunning = false
