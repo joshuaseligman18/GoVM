@@ -59,7 +59,11 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		case "LDUR", "LDURB", "LDURH", "LDURSW", "STUR", "STURB", "STURH", "STURW":
 			instrBin = instrD(opcode, operands, filePath, instrIndex + 1)
 		case "B":
+			// B instructions
 			instrBin = instrB(opcode, operands, filePath, instrIndex + 1)
+		case "CBZ":
+			// CB instructions
+			instrBin = instrCB(opcode, operands, filePath, instrIndex + 1)
 		// Constant data
 		case "DATA":
 			instrBin = instrData(operands, filePath, instrIndex + 1)
@@ -259,9 +263,9 @@ func instrD(opcode string, operands []string, fileName string, lineNumber int) u
 
 // Generates the binary for branch instructions
 func instrB(opcode string, operands []string, fileName string, lineNumber int) uint32 {
-	// Make sure we only have 1 number
+	// Make sure we only have 1 operand
 	if len(operands) != 1 {
-		errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
+		errMsg := fmt.Sprintf("Invalid instruction format: Expected 1 operand but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
 		log.Fatal(errMsg)
 	}
 
@@ -276,6 +280,33 @@ func instrB(opcode string, operands []string, fileName string, lineNumber int) u
 	// Get the relative branch address
 	branchAddr := uint32(getValue(operands[0], 26, "branch address", fileName, lineNumber))
 	outBin = outBin << 26 | branchAddr
+
+	return outBin
+}
+
+// Generates the binary for conditional branch instructions
+func instrCB(opcode string, operands []string, fileName string, lineNumber int) uint32 {
+	// Make sure we only have 1 operand
+	if len(operands) != 2 {
+		errMsg := fmt.Sprintf("Invalid instruction format: Expected 2 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
+		log.Fatal(errMsg)
+	}
+
+	outBin := uint32(0)
+
+	// Generate initial binary
+	switch opcode {
+	case "CBZ":
+		outBin = 0b10110100
+	}
+
+	// Get the branch address
+	branchAddr := uint32(getValue(operands[1], 19, "branch address", fileName, lineNumber))
+	outBin = outBin << 19 | branchAddr
+
+	// Get the register for the condition
+	register := uint32(getRegister(operands[0], fileName, lineNumber))
+	outBin = outBin << 5 | register
 
 	return outBin
 }

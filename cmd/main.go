@@ -23,6 +23,6 @@ func main() {
 	clk.AddClockListener(guiData)
 	clk.AddClockListener(cpu)
 	
-	go clk.StartClock(100)
+	go clk.StartClock(500)
 	gui.CreateGui(guiData)
 }
