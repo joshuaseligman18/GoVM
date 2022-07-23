@@ -58,11 +58,12 @@ func (queue *Queue) RemoveLast() {
 	cur := queue.head
 	if cur == nil || cur.next == nil {
 		queue.head = nil
+	} else {
+		for cur.next.next != nil {
+			cur = cur.next
+		}
+		cur.next = nil
 	}
-	for cur.next.next != nil {
-		cur = cur.next
-	}
-	cur.next = nil
 }
 
 // Gets the head of the queue
