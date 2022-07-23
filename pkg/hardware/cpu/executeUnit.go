@@ -12,6 +12,7 @@ type ExecuteUnit struct {
 	hw *hardware.Hardware // The hardware component
 	cpu *Cpu // The CPU
 	alu *Alu // The ALU
+	flushing bool // Variable to determine if the next instruction can be taken in
 }
 
 // Function that creates the execute unit
@@ -20,6 +21,7 @@ func NewExecuteUnit(cpuPtr *Cpu) *ExecuteUnit {
 		hw: hardware.NewHardware("EXU", 0),
 		cpu: cpuPtr,
 		alu: NewAlu(),
+		flushing: false,
 	}
 	return &exu
 }
@@ -163,6 +165,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 		newPC := exu.alu.Add(idexReg.incrementedPC, idexReg.signExtendImm)
 		exu.Log(util.ConvertToHexUint64(newPC))
 		// Flush the pipeline
+		exu.flushing = true
 		go exu.cpu.FlushPipeline(newPC)
 
 		// Continue execution of the branch instruction

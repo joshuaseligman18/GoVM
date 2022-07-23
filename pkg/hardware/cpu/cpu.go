@@ -89,7 +89,7 @@ func (cpu *Cpu) Pulse() {
 	}
 
 	// Clear decode unit and execute if available
-	if len(exmemChan) == 0 && len(idexChan) == 1 && !executeRunning {
+	if len(exmemChan) == 0 && len(idexChan) == 1 && !executeRunning && !cpu.executeUnit.flushing {
 		cpu.idexReg = <- idexChan
 		decodeRunning = false
 		cpu.Log(fmt.Sprintf("Starting execute: %d", cpu.idexReg.incrementedPC - 4))
@@ -150,6 +150,9 @@ func (cpu *Cpu) FlushPipeline(newPC uint64) {
 	idexChan = make(chan *IDEXReg, 1)
 	fetchRunning = false
 	decodeRunning = false
+
+	// Tell the execute unit it is safe to execute its next instruction
+	cpu.executeUnit.flushing = false
 }
 
 // Logs a message
