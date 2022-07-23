@@ -114,22 +114,30 @@ func (cpu *Cpu) Pulse() {
 // Function to stop the pipeline
 func (cpu *Cpu) FlushPipeline(newPC uint64) {
 	wgNum := 0
+	// Fetch is still running and not waiting
 	if len(ifidChan) == 0 {
 		wgNum++
 	}
+	// Decode is still running and not waiting
 	if len(idexChan) == 0 {
 		wgNum++
 	}
+	// Set the size of the waitgroup and send the signals
 	pipelineFlushWg.Add(wgNum)
 	for i := 0; i < wgNum; i++ {
 		pipelineFlushChan <- true
 	}
+	// Close the channels to remove any sitting data and to prevent any data from being added to them
 	close(ifidChan)
 	close(idexChan)
+	// Wait for the fetch and decode units to stop running
 	pipelineFlushWg.Wait()
 
+	// Clean up the pipeline flush channel
 	close(pipelineFlushChan)
 	pipelineFlushChan = make(chan bool, 2)
+
+	// Set the new program counter and reset the fetch and decode units and intermediate registers
 	cpu.programCounter = newPC
 	cpu.ifidReg = nil
 	cpu.idexReg = nil

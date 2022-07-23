@@ -159,10 +159,13 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 	}
 
 	if opcode >= 0x0A0 && opcode <= 0x0BF { // B
-		exu.Log(util.ConvertToHexUint64(idexReg.signExtendImm))
+		// Get the new program counter
 		newPC := exu.alu.Add(idexReg.incrementedPC, idexReg.signExtendImm)
 		exu.Log(util.ConvertToHexUint64(newPC))
+		// Flush the pipeline
 		go exu.cpu.FlushPipeline(newPC)
+
+		// Continue execution of the branch instruction
 		out <- &EXMEMReg {
 			instr: idexReg.instr,
 			incrementedPC: idexReg.incrementedPC,

@@ -47,8 +47,10 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
+		// Flush if there is a signal
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
+			// Clean up the queued write register
 			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
@@ -79,8 +81,10 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 		
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
+		// Flush if there is a signal
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
+			// Clean up the queued write register
 			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
@@ -113,8 +117,10 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 		}
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
+		// Flush if there is a signal
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
+			// Clean up the queued write register
 			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
@@ -149,8 +155,10 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 		}
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
+		// Flush if there is a signal
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
+			// Clean up the queued write register
 			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
@@ -183,8 +191,10 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 		}
 		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
+		// Flush if there is a signal
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
+			// Clean up the queued write register
 			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
@@ -212,7 +222,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 		regData1 := idu.cpu.GetRegisters()[regRead1]
 		regData2 := idu.cpu.GetRegisters()[regRead2]
 
-
+		// Flush if there is a signal
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
 			flushWg.Done()
@@ -231,6 +241,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 		branchAddr := ifidReg.instr & 0x3FFFFFF
 		signExtendBranchAddr := util.SignExtend(branchAddr, 26)
 
+		// Flush if there is a signal
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
 			flushWg.Done()

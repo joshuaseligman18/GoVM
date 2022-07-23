@@ -28,6 +28,7 @@ func (ifu *FetchUnit) FetchInstruction(out chan *IFIDReg, addr *uint64, flushCha
 	ifu.Log(util.ConvertToHexUint32(uint32(ifu.mmu.GetMdr() >> 32)))
 	*addr += 4
 
+	// Flush if there is a signal
 	if len(flushChan) > 0 {
 		ifu.Log("Flushing")
 		flushWg.Done()
