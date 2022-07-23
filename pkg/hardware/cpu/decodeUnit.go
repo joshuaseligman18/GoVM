@@ -39,21 +39,13 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 
 		// Immediate to write
 		immediate := ifidReg.instr & 0x1FFFFF >> 5
-		
-		// Wait until register opens up
-		for idu.cpu.GetRegisterLocks().Contains(regWrite) {
-			continue
-		}
-
-		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
 		// Flush if there is a signal
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
-			// Clean up the queued write register
-			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
+			idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 			out <- &IDEXReg {
 				instr: ifidReg.instr,
 				incrementedPC: ifidReg.incrementedPC,
@@ -79,15 +71,12 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 		// Immediate to write
 		immediate := ifidReg.instr & 0x1FFFFF >> 5
 		
-		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
-
 		// Flush if there is a signal
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
-			// Clean up the queued write register
-			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
+			idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 			out <- &IDEXReg {
 				instr: ifidReg.instr,
 				incrementedPC: ifidReg.incrementedPC,
@@ -115,15 +104,13 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 		if regWrite == 0x1F {
 			log.Fatalf("Bad regsiter write; cannot write to register XZR; PC: %d", ifidReg.incrementedPC - 4)
 		}
-		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
 		// Flush if there is a signal
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
-			// Clean up the queued write register
-			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
+			idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 			out <- &IDEXReg {
 				instr: ifidReg.instr,
 				incrementedPC: ifidReg.incrementedPC,
@@ -153,15 +140,13 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 		if regWrite == 0x1F {
 			log.Fatalf("Bad regsiter write; cannot write to register XZR; PC: %d", ifidReg.incrementedPC - 4)
 		}
-		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
 		// Flush if there is a signal
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
-			// Clean up the queued write register
-			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
+			idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 			out <- &IDEXReg {
 				instr: ifidReg.instr,
 				incrementedPC: ifidReg.incrementedPC,
@@ -189,15 +174,13 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 		if regWrite == 0x1F {
 			log.Fatalf("Bad regsiter write; cannot write to register XZR; PC: %d", ifidReg.incrementedPC - 4)
 		}
-		idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 
 		// Flush if there is a signal
 		if len(flushChan) > 0 {
 			idu.Log("Flushing")
-			// Clean up the queued write register
-			idu.cpu.GetRegisterLocks().RemoveLast()
 			flushWg.Done()
 		} else {
+			idu.cpu.GetRegisterLocks().Enqueue(regWrite)
 			out <- &IDEXReg {
 				instr: ifidReg.instr,
 				incrementedPC: ifidReg.incrementedPC,

@@ -1,6 +1,10 @@
 package cpu
 
-import "github.com/joshuaseligman/GoVM/pkg/hardware"
+import (
+	"fmt"
+
+	"github.com/joshuaseligman/GoVM/pkg/hardware"
+)
 
 // Struct for the writeback unit
 type WritebackUnit struct {
@@ -32,7 +36,14 @@ func (wbu *WritebackUnit) HandleWriteback(out chan bool, memwbReg *MEMWBReg) {
 	default:
 		reg := wbu.cpu.GetRegisterLocks().Dequeue()
 		wbu.cpu.GetRegisters()[reg] = memwbReg.writeVal
+		wbu.Log(fmt.Sprintf("Unlocked %d", reg))
+		wbu.Log(wbu.cpu.GetRegisterLocks().ToString())
 	}
 
 	out <- true
+}
+
+// Logs a message
+func (wbu *WritebackUnit) Log(msg string) {
+	wbu.hw.Log(msg)
 }

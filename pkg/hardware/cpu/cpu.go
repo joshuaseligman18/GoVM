@@ -61,6 +61,9 @@ func NewCpu(mem *memory.Memory) *Cpu {
 
 // Function that gets called every clock cycle
 func (cpu *Cpu) Pulse() {
+	cpu.Log(fmt.Sprintf("%t %t %t %t %t", fetchRunning, decodeRunning, executeRunning, memRunning, writebackRunning))
+	cpu.Log(fmt.Sprintf("%d %d %d %d %d", len(ifidChan), len(idexChan), len(exmemChan), len(memwbChan), len(endInstrChan)))
+
 	// Clear the writeback unit
 	if len(endInstrChan) == 1 {
 		<- endInstrChan
@@ -121,6 +124,8 @@ func (cpu *Cpu) FlushPipeline(newPC uint64) {
 	// Decode is still running and not waiting
 	if len(idexChan) == 0 {
 		wgNum++
+	} else {
+		cpu.regLocks.RemoveLast()
 	}
 	// Set the size of the waitgroup and send the signals
 	pipelineFlushWg.Add(wgNum)
@@ -131,7 +136,7 @@ func (cpu *Cpu) FlushPipeline(newPC uint64) {
 	close(ifidChan)
 	close(idexChan)
 	// Wait for the fetch and decode units to stop running
-	pipelineFlushWg.Wait()
+	pipelineFlushWg.Wait() // FIXME Occasionally get a negative wg counter error
 
 	// Clean up the pipeline flush channel
 	close(pipelineFlushChan)
