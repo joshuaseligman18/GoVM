@@ -136,7 +136,7 @@ func (cpu *Cpu) FlushPipeline(newPC uint64) {
 	close(ifidChan)
 	close(idexChan)
 	// Wait for the fetch and decode units to stop running
-	pipelineFlushWg.Wait() // FIXME Occasionally get a negative wg counter error
+	pipelineFlushWg.Wait()
 
 	// Clean up the pipeline flush channel
 	close(pipelineFlushChan)

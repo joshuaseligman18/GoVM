@@ -162,7 +162,8 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 
 	if opcode >= 0x0A0 && opcode <= 0x0BF { // B
 		// Get the new program counter
-		newPC := exu.alu.Add(idexReg.incrementedPC, idexReg.signExtendImm)
+		offset := idexReg.signExtendImm << 2
+		newPC := exu.alu.Add(idexReg.incrementedPC, offset)
 		exu.Log(util.ConvertToHexUint64(newPC))
 		// Flush the pipeline
 		exu.flushing = true
