@@ -1,5 +1,10 @@
 package util
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Struct for a queue
 type Queue struct {
 	head *Node // The head of the queue
@@ -63,4 +68,16 @@ func (queue *Queue) RemoveLast() {
 // Gets the head of the queue
 func (queue *Queue) GetHead() *Node {
 	return queue.head
+}
+
+// Gets the string representation of the queue
+func (queue *Queue) ToString() string {
+	var str strings.Builder
+	cur := queue.head
+
+	for cur != nil {
+		str.WriteString(fmt.Sprintf("%d ", cur.val))
+		cur = cur.next
+	}
+	return str.String()
 }
