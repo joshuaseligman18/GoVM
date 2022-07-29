@@ -92,7 +92,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 		reg2 := ifidReg.instr & 0x3FF >> 5
 		
 		// Wait until the registers have the most up-to-date data
-		for idu.cpu.GetRegisterLocks().Contains(reg1) || idu.cpu.GetRegisterLocks().Contains(reg2){
+		for idu.cpu.GetRegisterLocks().Contains(reg1) || idu.cpu.GetRegisterLocks().Contains(reg2) {
 			continue
 		}
 
@@ -199,7 +199,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 		// Get the most updated values to work with
 		regRead1 := ifidReg.instr & 0x3FF >> 5
 		regRead2 := ifidReg.instr & 0x1F
-		for idu.cpu.GetRegisterLocks().Contains(regRead1) || idu.cpu.GetRegisterLocks().Contains(regRead2){
+		for idu.cpu.GetRegisterLocks().Contains(regRead1) || idu.cpu.GetRegisterLocks().Contains(regRead2) {
 			continue
 		}
 		regData1 := idu.cpu.GetRegisters()[regRead1]
@@ -233,6 +233,31 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg, fl
 				instr: ifidReg.instr,
 				incrementedPC: ifidReg.incrementedPC,
 				signExtendImm: signExtendBranchAddr,
+			}
+		}
+	}
+
+	// Conditional branch instructions
+	if opcode >= 0x5A0 && opcode <= 0x5A7 { // CBZ
+		branchAddr := ifidReg.instr & 0xFFFFFF >> 5
+		signExtendBranchAddr := util.SignExtend(branchAddr, 19)
+
+		reg := ifidReg.instr & 0x1F
+		for idu.cpu.GetRegisterLocks().Contains(reg) {
+			continue
+		}
+		regReadData1 := idu.cpu.GetRegisters()[reg]
+
+		// Flush if there is a signal
+		if len(flushChan) > 0 {
+			idu.Log("Flushing")
+			flushWg.Done()
+		} else {
+			out <- &IDEXReg {
+				instr: ifidReg.instr,
+				incrementedPC: ifidReg.incrementedPC,
+				signExtendImm: signExtendBranchAddr,
+				regReadData1: regReadData1,
 			}
 		}
 	}

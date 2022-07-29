@@ -175,6 +175,22 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			incrementedPC: idexReg.incrementedPC,
 		}
 	}
+
+	if opcode >= 0x5A0 && opcode <= 0x5A7 { // CBZ
+		exu.alu.ClearFlags()
+		exu.alu.Add(idexReg.regReadData1, 0)
+		if exu.alu.zeroFlag {
+			offSet := idexReg.signExtendImm << 2
+			newPC := exu.alu.Add(idexReg.incrementedPC, offSet)
+			exu.flushing = true
+			go exu.cpu.FlushPipeline(newPC)
+		}
+		// Continue execution of the branch instruction
+		out <- &EXMEMReg {
+			instr: idexReg.instr,
+			incrementedPC: idexReg.incrementedPC,
+		}
+	}
 }
 
 // Logs a message
