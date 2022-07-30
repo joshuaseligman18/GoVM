@@ -120,7 +120,11 @@ func (cpu *Cpu) FlushPipeline(newPC uint64) {
 
     // Remove the data in the channels
     <- ifidChan
-    <- idexChan
+    lastDecode := <- idexChan
+
+	if lastDecode.addedLock {
+		cpu.regLocks.RemoveLast()
+	}
 
 	// Set the new program counter and reset the fetch and decode units and intermediate registers
 	cpu.programCounter = newPC

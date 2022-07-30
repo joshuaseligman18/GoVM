@@ -46,6 +46,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 			regReadData1: 0,
 			regReadData2: 0,
             signExtendImm: util.SignExtend(immediate, 32), // Should always be positive
+			addedLock: true,
 		}
 
 	case 0x794, 0x795, 0x796, 0x797: // MOVK
@@ -71,6 +72,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 			regReadData1: regReadData1,
 			regReadData2: 0,
             signExtendImm: util.SignExtend(immediate, 32), // Should always be positive
+			addedLock: true,
 		}
 
 	case 0x458, 0x558, 0x658, 0x758: // ADD, ADDS, SUB
@@ -99,6 +101,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
             regReadData1: regData1,
             regReadData2: regData2,
             signExtendImm: 0,
+			addedLock: true,
         }
 
 	case 0x488, 0x489, // ADDI
@@ -129,6 +132,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
             regReadData1: regData1,
             regReadData2: 0,
             signExtendImm: signExtendImm,
+			addedLock: true,
         }
 
 	case 0x7C2, 0x1C2, // LDUR, LDURB
@@ -157,6 +161,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
             regReadData1: regData1,
             regReadData2: 0,
             signExtendImm: signExtendImm,
+			addedLock: true,
         }
 	
 	case 0x7C0, 0x1C0, // STUR, STURB

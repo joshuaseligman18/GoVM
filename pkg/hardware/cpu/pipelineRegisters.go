@@ -23,6 +23,7 @@ type IDEXReg struct {
 	regReadData1 uint64 // The data in the first read register
 	regReadData2 uint64 // The data in the second read register
 	signExtendImm uint64 // The sign extended immediate
+	addedLock bool // If the lock was added
 }
 
 // Gets the instruction in the IDEX register
@@ -48,6 +49,11 @@ func (idexReg *IDEXReg) GetRegReadData2() uint64 {
 // Gets the incremented program counter in the IDEX register
 func (idexReg *IDEXReg) GetSignExtendedImmediate() uint64 {
 	return idexReg.signExtendImm
+}
+
+// Gets if the lock was added
+func (idexReg *IDEXReg) GetAddedLock() bool {
+	return idexReg.addedLock
 }
 
 // Struct for the data passed between the execute and memory units
