@@ -2,7 +2,6 @@ package cpu
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
@@ -38,8 +37,6 @@ var (
 	executeRunning bool = false // Determines if the execute unit is currently running
 	memRunning bool = false // Determines if the mem data unit is currently running
 	writebackRunning bool = false // Determines if the writeback unit is currently running
-	pipelineFlushWg sync.WaitGroup // The waitgroup to make sure the pipeline is flushed before resuming operations
-	pipelineFlushChan chan bool = make(chan bool, 2) // The signal sent to flush the pipeline
 )
 
 // Creates the CPU
@@ -102,52 +99,33 @@ func (cpu *Cpu) Pulse() {
 		cpu.ifidReg = <- ifidChan
 		fetchRunning = false
 		cpu.Log(fmt.Sprintf("Starting decode: %d", cpu.ifidReg.incrementedPC - 4))
-		go cpu.decodeUnit.DecodeInstruction(idexChan, cpu.ifidReg, pipelineFlushChan, &pipelineFlushWg)
+		go cpu.decodeUnit.DecodeInstruction(idexChan, cpu.ifidReg)
 		decodeRunning = true
 	}
 
 	// Fetch if available
 	if len(ifidChan) == 0 && !fetchRunning {
 		cpu.Log(fmt.Sprintf("Starting fetch: %d", cpu.programCounter))
-		go cpu.fetchUnit.FetchInstruction(ifidChan, &cpu.programCounter, pipelineFlushChan, &pipelineFlushWg)
+		go cpu.fetchUnit.FetchInstruction(ifidChan, &cpu.programCounter)
 		fetchRunning = true
 	}
 }
 
 // Function to stop the pipeline
 func (cpu *Cpu) FlushPipeline(newPC uint64) {
-	wgNum := 0
-	// Fetch is still running and not waiting
-	if len(ifidChan) == 0 {
-		wgNum++
-	}
-	// Decode is still running and not waiting
-	if len(idexChan) == 0 {
-		wgNum++
-	} else {
-		cpu.regLocks.RemoveLast()
-	}
-	// Set the size of the waitgroup and send the signals
-	pipelineFlushWg.Add(wgNum)
-	for i := 0; i < wgNum; i++ {
-		pipelineFlushChan <- true
-	}
-	// Close the channels to remove any sitting data and to prevent any data from being added to them
-	close(ifidChan)
-	close(idexChan)
-	// Wait for the fetch and decode units to stop running
-	pipelineFlushWg.Wait()
+    // Wait until both fetch and decode units are sitting
+    for len(ifidChan) == 0 && len(idexChan) == 0 {
+        continue
+    }
 
-	// Clean up the pipeline flush channel
-	close(pipelineFlushChan)
-	pipelineFlushChan = make(chan bool, 2)
+    // Remove the data in the channels
+    <- ifidChan
+    <- idexChan
 
 	// Set the new program counter and reset the fetch and decode units and intermediate registers
 	cpu.programCounter = newPC
 	cpu.ifidReg = nil
 	cpu.idexReg = nil
-	ifidChan = make(chan *IFIDReg, 1)
-	idexChan = make(chan *IDEXReg, 1)
 	fetchRunning = false
 	decodeRunning = false
 
