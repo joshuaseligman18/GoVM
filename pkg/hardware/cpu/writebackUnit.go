@@ -30,6 +30,11 @@ func (wbu *WritebackUnit) HandleWriteback(out chan bool, memwbReg *MEMWBReg) {
 		return
 	}
 
+	if opcode >= 0x5A0 && opcode <= 0x5A7 { // CBZ
+		out <- true
+		return
+	}
+
 	switch opcode {
 	case 0x7C0, 0x1C0, 0x3C0, 0x5C0: // STUR, STURB, STURH, STURW
 		break
