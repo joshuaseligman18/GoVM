@@ -109,7 +109,7 @@ LDUR Rd, Rm, Addr
 ```
 *Rd: The destination register (X0 - X30)* <br />
 *Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
-*Addr: The 9-bit unsigned value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
+*Addr: The 9-bit signed 2's complement value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
 
 **LDURB** - Loads a byte from memory into a register.
 ```
@@ -117,7 +117,7 @@ LDURB Rd, Rm, Addr
 ```
 *Rd: The destination register (X0 - X30)* <br />
 *Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
-*Addr: The 9-bit unsigned value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
+*Addr: The 9-bit signed 2's complement value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
 
 **LDURH** - Loads a halfword from memory into a register.
 ```
@@ -125,7 +125,7 @@ LDURH Rd, Rm, Addr
 ```
 *Rd: The destination register (X0 - X30)* <br />
 *Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
-*Addr: The 9-bit unsigned value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
+*Addr: The 9-bit signed 2's complement value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
 
 **LDURSW** - Loads a signed word from memory into a register.
 ```
@@ -133,7 +133,39 @@ LDURSW Rd, Rm, Addr
 ```
 *Rd: The destination register (X0 - X30)* <br />
 *Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
-*Addr: The 9-bit unsigned value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
+*Addr: The 9-bit signed 2's complement value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
+
+**STUR** - Stores the contents of a register into memory.
+```
+STUR Rd, Rm, Addr
+```
+*Rd: The register whose contents should be stored (X0 - X30)* <br />
+*Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
+*Addr: The 9-bit signed 2's complement value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
+
+**STURB** - Stores a byte from a register into memory.
+```
+STURB Rd, Rm, Addr
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
+*Addr: The 9-bit signed 2's complement value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
+
+**STURH** - Stores a halfword from a register into memory.
+```
+STURH Rd, Rm, Addr
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
+*Addr: The 9-bit signed 2's complement value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
+
+**STURW** - Stores a word from a register into memory.
+```
+STURW Rd, Rm, Addr
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
+*Addr: The 9-bit signed 2's complement value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
 
 ### Branching Instructions
 ### Miscellaneous Instructions
