@@ -22,7 +22,7 @@ GoVM is a virtual ARM processor written in Go. The project was inspired by Profe
 
 ### Arithmetic Instructions
 
-**ADD** - Adds the contents of 2 registers and saves the output into another register. The ALU flags are ***NOT*** set from this instruction.
+**ADD** - Adds the contents of 2 registers and saves the output in another register. The ALU flags are ***NOT*** set from this instruction.
 ```
 ADD Rd, Rm, Rn
 ```
@@ -30,13 +30,29 @@ ADD Rd, Rm, Rn
 *Rm: The first register for the operation (X0 - X30, XZR)* <br />
 *Rn: The second register for the operation (X0 - X30, XZR)*
 
-**ADDS** - Adds the contents of 2 registers and saves the output into another register. The ALU flags ***ARE*** set from this instruction.
+**ADDS** - Adds the contents of 2 registers and saves the output in another register. The ALU flags ***ARE*** set from this instruction.
 ```
 ADDS Rd, Rm, Rn
 ```
 *Rd: The destination register (X0 - X30)* <br />
 *Rm: The first register for the operation (X0 - X30, XZR)* <br />
 *Rn: The second register for the operation (X0 - X30, XZR)*
+
+**ADDI** - Adds a constant to the contents of a register and saves the output in another register. The ALU flags are ***NOT*** set from this instruction.
+```
+ADDI Rd, Rm, Imm
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The register for the operation (X0 - X30, XZR)* <br />
+*Imm: The 12-bit unsigned immediate value to add (0x000 - 0xFFF)*
+
+**ADDIS** - Adds a constant to the contents of a register and saves the output in another register. The ALU flags ***ARE*** set from this instruction.
+```
+ADDIS Rd, Rm, Imm
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The register for the operation (X0 - X30, XZR)* <br />
+*Imm: The 12-bit unsigned immediate value to add (0x000 - 0xFFF)*
 
 ### Data Transfer Instructions
 ### Branching Instructions
