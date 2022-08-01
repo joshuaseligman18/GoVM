@@ -119,5 +119,21 @@ LDURB Rd, Rm, Addr
 *Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
 *Addr: The 9-bit unsigned value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
 
+**LDURH** - Loads a halfword from memory into a register.
+```
+LDURH Rd, Rm, Addr
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
+*Addr: The 9-bit unsigned value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
+
+**LDURSW** - Loads a signed word from memory into a register.
+```
+LDURSW Rd, Rm, Addr
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
+*Addr: The 9-bit unsigned value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
+
 ### Branching Instructions
 ### Miscellaneous Instructions
