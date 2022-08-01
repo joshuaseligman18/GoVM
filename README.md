@@ -54,6 +54,38 @@ ADDIS Rd, Rm, Imm
 *Rm: The register for the operation (X0 - X30, XZR)* <br />
 *Imm: The 12-bit unsigned immediate value to add (0x000 - 0xFFF)*
 
+**SUB** - Subtracts the contents of 2 registers and saves the output in another register. The ALU flags are ***NOT*** set from this instruction.
+```
+SUB Rd, Rm, Rn
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The first register for the operation (X0 - X30, XZR)* <br />
+*Rn: The second register for the operation (X0 - X30, XZR)*
+
+**SUBS** - Subtracts the contents of 2 registers and saves the output in another register. The ALU flags ***ARE*** set from this instruction.
+```
+SUBS Rd, Rm, Rn
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The first register for the operation (X0 - X30, XZR)* <br />
+*Rn: The second register for the operation (X0 - X30, XZR)*
+
+**SUBBI** - Subtracts a constant to the contents of a register and saves the output in another register. The ALU flags are ***NOT*** set from this instruction.
+```
+SUBI Rd, Rm, Imm
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The register for the operation (X0 - X30, XZR)* <br />
+*Imm: The 12-bit unsigned immediate value to add (0x000 - 0xFFF)*
+
+**SUBIS** - Subtracts a constant to the contents of a register and saves the output in another register. The ALU flags ***ARE*** set from this instruction.
+```
+SUBIS Rd, Rm, Imm
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The register for the operation (X0 - X30, XZR)* <br />
+*Imm: The 12-bit unsigned immediate value to add (0x000 - 0xFFF)*
+
 ### Data Transfer Instructions
 ### Branching Instructions
 ### Miscellaneous Instructions
