@@ -168,4 +168,25 @@ STURW Rd, Rm, Addr
 *Addr: The 9-bit signed 2's complement value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
 
 ### Branching Instructions
+
+**B** - Branches to a new location in the program.
+```
+B Addr
+```
+*Addr: The 26-bit signed 2's complement relative address to branch to (0x0000000 - 0x3FFFFFF)*
+
+**CBZ** - Branches to a new location in the program if the given register ***IS*** equal to 0.
+```
+CBZ Rm, Addr
+```
+*Rm: The register whose value should be tested* <br />
+*Addr: The 19-bit signed 2's complement relative address to branch to (0x00000 - 0x7FFFF)*
+
+**CBNZ** - Branches to a new location in the program if the given register is ***NOT*** equal to 0.
+```
+CBNZ Rm, Addr
+```
+*Rm: The register whose value should be tested* <br />
+*Addr: The 19-bit signed 2's complement relative address to branch to (0x00000 - 0x7FFFF)*
+
 ### Miscellaneous Instructions
