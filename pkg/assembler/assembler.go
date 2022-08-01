@@ -110,16 +110,16 @@ func AssembleProgramAPI(progStr string) ([]uint32, error) {
 		var opcode string
 		var operands []string
 
-		if opcodeSplit == -1 && instr != "HLT" {
+		if opcodeSplit == -1 && instr != "HLT\r" {
 			errMsg := fmt.Sprint("Invalid instruction ", instr)
 			return nil, errors.New(errMsg)
-		} else if opcodeSplit != -1 && instr != "HLT" {
+		} else if opcodeSplit != -1 && instr != "HLT\r" {
 			// Get the opcode
 			opcode = instr[:opcodeSplit]
 
 			// Get a list of operands
 			operands = strings.Split(instr[opcodeSplit + 1:], ", ")
-		} else if instr == "HLT" {
+		} else if instr == "HLT\r" {
 			opcode = "HLT"
 		}
 
@@ -187,7 +187,7 @@ func instrIM(opcode string, operands []string, fileName string, lineNumber int) 
 
 	// Get the shift amount
 	shiftStr := strings.Split(operands[2], " ")[1]
-	fmt.Println("Shift string:", shiftStr)
+	shiftStr = strings.TrimSuffix(shiftStr, "\r")
 	shiftInt, errConv := strconv.ParseInt(shiftStr, 10, 0)
 	if errConv == nil {
 		// Add the shift to the binary
@@ -483,7 +483,8 @@ func instrData(operands []string, fileName string, lineNumber int) (uint32, erro
 // Parses a string for a register value
 func getRegister(regString string, fileName string, lineNumber int) (int64, error) {
 	// Get the register for the operation
-	reg, errConv := strconv.ParseInt(regString[1:], 10, 0)
+	regString = strings.TrimSuffix(regString[1:], "\r")
+	reg, errConv := strconv.ParseInt(regString, 10, 0)
 	if errConv != nil {
 		// Account for XZR register
 		if regString[1:] == "ZR" {
@@ -517,7 +518,8 @@ func getValue(valStr string, maxSize int, valName string, fileName string, lineN
 		cut = 1
 	}
 	// Get the value based on the base that was decided earlier
-	val, errConv := strconv.ParseUint(valStr[cut:], base, maxSize)
+	valStr = strings.TrimSuffix(valStr[cut:], "\r")
+	val, errConv := strconv.ParseUint(valStr, base, maxSize)
 	if errConv == nil {
 		return val, nil
 	} else {
