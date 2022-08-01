@@ -3,7 +3,6 @@ package assembler
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -12,11 +11,11 @@ import (
 )
 
 // Assembles a program into instructions for the computer to read
-func AssembleProgram(filePath string, maxSize int) ([]uint32, error) {
+func AssembleProgramFile(filePath string, maxSize int) ([]uint32, error) {
 	// Open the file
 	f, err := os.Open(filePath)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer f.Close()
 

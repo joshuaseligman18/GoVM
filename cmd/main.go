@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	assembledProgram, err := assembler.AssembleProgram("test.goas", 0x10000)
+	assembledProgram, err := assembler.AssembleProgramFile("test.goas", 0x10000)
 	if err != nil {
 		log.Fatal(err)
 	}
