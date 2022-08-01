@@ -201,7 +201,8 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 	}
 
 	// Conditional branch instructions
-	if opcode >= 0x5A0 && opcode <= 0x5A7 { // CBZ
+	if opcode >= 0x5A0 && opcode <= 0x5A7 || // CBZ
+	   opcode >= 0x5A8 && opcode <= 0x5AF { // CBNZ
 		branchAddr := ifidReg.instr & 0xFFFFFF >> 5
 		signExtendBranchAddr := util.SignExtend(branchAddr, 19)
 

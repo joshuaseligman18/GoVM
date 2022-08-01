@@ -25,12 +25,9 @@ func NewWritebackUnit(parentCpu *Cpu) *WritebackUnit {
 func (wbu *WritebackUnit) HandleWriteback(out chan bool, memwbReg *MEMWBReg) {
 	opcode := memwbReg.instr >> 21
 
-	if opcode >= 0x0A0 && opcode <= 0x0BF { // B
-		out <- true
-		return
-	}
-
-	if opcode >= 0x5A0 && opcode <= 0x5A7 { // CBZ
+	if opcode >= 0x0A0 && opcode <= 0x0BF || // B
+	   opcode >= 0x5A0 && opcode <= 0x5A7 || // CBZ
+	   opcode >= 0x5A8 && opcode <= 0x5AF { // CBNZ
 		out <- true
 		return
 	}

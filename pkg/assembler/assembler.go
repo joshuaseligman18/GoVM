@@ -58,11 +58,11 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		// D instructions
 		case "LDUR", "LDURB", "LDURH", "LDURSW", "STUR", "STURB", "STURH", "STURW":
 			instrBin = instrD(opcode, operands, filePath, instrIndex + 1)
+		// B instructions
 		case "B":
-			// B instructions
 			instrBin = instrB(opcode, operands, filePath, instrIndex + 1)
-		case "CBZ":
-			// CB instructions
+		// CB instructions
+		case "CBZ", "CBNZ":
 			instrBin = instrCB(opcode, operands, filePath, instrIndex + 1)
 		// Constant data
 		case "DATA":
@@ -298,6 +298,8 @@ func instrCB(opcode string, operands []string, fileName string, lineNumber int) 
 	switch opcode {
 	case "CBZ":
 		outBin = 0b10110100
+	case "CBNZ":
+		outBin = 0b10110101
 	}
 
 	// Get the branch address

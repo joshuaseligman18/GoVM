@@ -176,10 +176,12 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 		}
 	}
 
-	if opcode >= 0x5A0 && opcode <= 0x5A7 { // CBZ
+	if opcode >= 0x5A0 && opcode <= 0x5A7 || // CBZ
+	   opcode >= 0x5A8 && opcode <= 0x5AF { // CBNZ
 		exu.alu.ClearFlags()
 		exu.alu.Add(idexReg.regReadData1, 0)
-		if exu.alu.zeroFlag {
+		if opcode >= 0x5A0 && opcode <= 0x5A7 && exu.alu.zeroFlag || // CBZ condition
+		   opcode >= 0x5A8 && opcode <= 0x5AF && !exu.alu.zeroFlag { // CBNZ condition
 			offSet := idexReg.signExtendImm << 2
 			newPC := exu.alu.Add(idexReg.incrementedPC, offSet)
 			exu.flushing = true
