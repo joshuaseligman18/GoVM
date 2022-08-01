@@ -94,6 +94,79 @@ func AssembleProgramFile(filePath string, maxSize int) ([]uint32, error) {
 	return program, nil
 }
 
+// Assembles a program into instructions for the computer to read
+func AssembleProgramAPI(progStr string) ([]uint32, error) {
+	// Create the array that will become the memory
+	program := make([]uint32, 0)
+	filePath := "Web form"
+
+	// Read the file line by line
+	for instrIndex, instr := range strings.Split(progStr, "\n") {
+
+		// Get the end of the opcode
+		opcodeSplit := strings.Index(instr, " ")
+
+		// Define the variables for the opcode and operands
+		var opcode string
+		var operands []string
+
+		if opcodeSplit == -1 && instr != "HLT" {
+			errMsg := fmt.Sprintf("Invalid instruction ", instr)
+			return nil, errors.New(errMsg)
+		} else if opcodeSplit != -1 && instr != "HLT" {
+			// Get the opcode
+			opcode = instr[:opcodeSplit]
+
+			// Get a list of operands
+			operands = strings.Split(instr[opcodeSplit + 1:], ", ")
+		} else if instr == "HLT" {
+			opcode = "HLT"
+		}
+
+		instrBin := uint32(0)
+		var err error
+
+		switch opcode {
+		// IM instructions
+		case "MOVZ", "MOVK":
+			instrBin, err = instrIM(opcode, operands, filePath, instrIndex + 1)
+		// R instructions
+		case "ADD", "ADDS", "SUB", "SUBS":
+			instrBin, err = instrR(opcode, operands, filePath, instrIndex + 1)
+		// I instructions
+		case "ADDI", "ADDIS", "SUBI", "SUBIS":
+			instrBin, err = instrI(opcode, operands, filePath, instrIndex + 1)
+		// D instructions
+		case "LDUR", "LDURB", "LDURH", "LDURSW", "STUR", "STURB", "STURH", "STURW":
+			instrBin, err = instrD(opcode, operands, filePath, instrIndex + 1)
+		// B instructions
+		case "B":
+			instrBin, err = instrB(opcode, operands, filePath, instrIndex + 1)
+		// CB instructions
+		case "CBZ", "CBNZ":
+			instrBin, err = instrCB(opcode, operands, filePath, instrIndex + 1)
+		// Constant data
+		case "DATA":
+			instrBin, err = instrData(operands, filePath, instrIndex + 1)
+		// Halt
+		case "HLT":
+			instrBin = 0
+		default:
+			errMsg := fmt.Sprintf("Invalid opcode; File: %s; Line: %d", filePath, instrIndex + 1)
+			err = errors.New(errMsg)
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		// Add the instruction to the program
+		program = append(program, instrBin)
+	}
+	
+	return program, nil
+}
+
 // Generates the binary for IM instructions
 func instrIM(opcode string, operands []string, fileName string, lineNumber int) (uint32, error) {
 	// Make sure we have the right number of operands
