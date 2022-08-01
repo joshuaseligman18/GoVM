@@ -70,7 +70,7 @@ SUBS Rd, Rm, Rn
 *Rm: The first register for the operation (X0 - X30, XZR)* <br />
 *Rn: The second register for the operation (X0 - X30, XZR)*
 
-**SUBI** - Subtracts a constant to the contents of a register and saves the output in another register. The ALU flags are ***NOT*** set from this instruction.
+**SUBI** - Subtracts a constant from the contents of a register and saves the output in another register. The ALU flags are ***NOT*** set from this instruction.
 ```
 SUBI Rd, Rm, Imm
 ```
@@ -78,7 +78,7 @@ SUBI Rd, Rm, Imm
 *Rm: The register for the operation (X0 - X30, XZR)* <br />
 *Imm: The 12-bit unsigned immediate value to add (0x000 - 0xFFF)*
 
-**SUBIS** - Subtracts a constant to the contents of a register and saves the output in another register. The ALU flags ***ARE*** set from this instruction.
+**SUBIS** - Subtracts a constant from the contents of a register and saves the output in another register. The ALU flags ***ARE*** set from this instruction.
 ```
 SUBIS Rd, Rm, Imm
 ```
