@@ -173,7 +173,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		 0x3C2, 0x5C4: // LDURH, LDURSW
 		// Get the immediate value
 		immediate := ifidReg.instr & 0x1FFFFF >> 12
-		signExtendImm := util.SignExtend(immediate, 8)
+		signExtendImm := util.SignExtend(immediate, 9)
 
 		// Get the most updated value to work with
 		regRead := ifidReg.instr & 0x3FF >> 5
@@ -202,7 +202,7 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 		 0x3C0, 0x5C0: // STURH, STURW
 		// Get the immediate value
 		immediate := ifidReg.instr & 0x1FFFFF >> 12
-		signExtendImm := util.SignExtend(immediate, 8)
+		signExtendImm := util.SignExtend(immediate, 9)
 
 		// Get the most updated values to work with
 		regRead1 := ifidReg.instr & 0x3FF >> 5
