@@ -103,5 +103,21 @@ MOVK Rd, Imm, LSL Amt
 *Imm: The 16-bit constant to load to the register (0x0000 - 0xFFFF)* <br />
 *Amt: The amount to left-shift the immediate by (0, 16, 32, 48)*
 
+**LDUR** - Loads a doubleword from memory into a register.
+```
+LDUR Rd, Rm, Addr
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
+*Addr: The 9-bit unsigned value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
+
+**LDURB** - Loads a byte from memory into a register.
+```
+LDURB Rd, Rm, Addr
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Rm: The register to use in determining the address (X0 - X30, XZR)* <br />
+*Addr: The 9-bit unsigned value to add to the value in Rm to determine the memory location (0x000 - 0x1FF)*
+
 ### Branching Instructions
 ### Miscellaneous Instructions
