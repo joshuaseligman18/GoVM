@@ -8,10 +8,11 @@ import (
 	"strconv"
 	"strings"
 	"math"
+	"errors"
 )
 
 // Assembles a program into instructions for the computer to read
-func AssembleProgram(filePath string, maxSize int) []uint32 {
+func AssembleProgram(filePath string, maxSize int) ([]uint32, error) {
 	// Open the file
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -37,49 +38,53 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		var operands []string
 
 		if opcodeSplit == -1 && instr != "HLT" {
-			log.Fatal("Invalid instruction ", instr)
+			errMsg := fmt.Sprintf("Invalid instruction ", instr)
+			return nil, errors.New(errMsg)
 		} else if opcodeSplit != -1 && instr != "HLT" {
 			// Get the opcode
 			opcode = instr[:opcodeSplit]
-			fmt.Println(opcode)
-	
+
 			// Get a list of operands
 			operands = strings.Split(instr[opcodeSplit + 1:], ", ")
-			fmt.Println(operands)
 		} else if instr == "HLT" {
 			opcode = "HLT"
 		}
 
 		instrBin := uint32(0)
+		var err error
 
 		switch opcode {
 		// IM instructions
 		case "MOVZ", "MOVK":
-			instrBin = instrIM(opcode, operands, filePath, instrIndex + 1)
+			instrBin, err = instrIM(opcode, operands, filePath, instrIndex + 1)
 		// R instructions
 		case "ADD", "ADDS", "SUB", "SUBS":
-			instrBin = instrR(opcode, operands, filePath, instrIndex + 1)
+			instrBin, err = instrR(opcode, operands, filePath, instrIndex + 1)
 		// I instructions
 		case "ADDI", "ADDIS", "SUBI", "SUBIS":
-			instrBin = instrI(opcode, operands, filePath, instrIndex + 1)
+			instrBin, err = instrI(opcode, operands, filePath, instrIndex + 1)
 		// D instructions
 		case "LDUR", "LDURB", "LDURH", "LDURSW", "STUR", "STURB", "STURH", "STURW":
-			instrBin = instrD(opcode, operands, filePath, instrIndex + 1)
+			instrBin, err = instrD(opcode, operands, filePath, instrIndex + 1)
 		// B instructions
 		case "B":
-			instrBin = instrB(opcode, operands, filePath, instrIndex + 1)
+			instrBin, err = instrB(opcode, operands, filePath, instrIndex + 1)
 		// CB instructions
 		case "CBZ", "CBNZ":
-			instrBin = instrCB(opcode, operands, filePath, instrIndex + 1)
+			instrBin, err = instrCB(opcode, operands, filePath, instrIndex + 1)
 		// Constant data
 		case "DATA":
-			instrBin = instrData(operands, filePath, instrIndex + 1)
+			instrBin, err = instrData(operands, filePath, instrIndex + 1)
 		// Halt
 		case "HLT":
 			instrBin = 0
 		default:
 			errMsg := fmt.Sprintf("Invalid opcode; File: %s; Line: %d", filePath, instrIndex + 1)
-			log.Fatal(errMsg)
+			err = errors.New(errMsg)
+		}
+
+		if err != nil {
+			return nil, err
 		}
 
 		// Add the instruction to the program
@@ -87,15 +92,15 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		instrIndex++
 	}
 	
-	return program
+	return program, nil
 }
 
 // Generates the binary for IM instructions
-func instrIM(opcode string, operands []string, fileName string, lineNumber int) uint32 {
+func instrIM(opcode string, operands []string, fileName string, lineNumber int) (uint32, error) {
 	// Make sure we have the right number of operands
 	if len(operands) != 3 {
 		errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
-		log.Fatal(errMsg)
+		return 0, errors.New(errMsg)
 	}
 
 	outBin := uint32(0)
@@ -117,29 +122,37 @@ func instrIM(opcode string, operands []string, fileName string, lineNumber int) 
 	} else {
 		// Bad shift value error
 		errMsg := fmt.Sprintf("Bad shift value; File: %s; Line: %d", fileName, lineNumber)
-		log.Fatal(errMsg)
+		return 0, errors.New(errMsg)
 	}
 
 	// Get the value to move into the register
-	val := getValue(operands[1], 16, "move immediate", fileName, lineNumber)
-	outBin = outBin << 16 | uint32(val)
+	val, err := getValue(operands[1], 16, "move immediate", fileName, lineNumber)
+	if err == nil {
+		outBin = outBin << 16 | uint32(val)
+	} else {
+		return 0, err
+	}
 
 	// Get the register to move the value to
-	destReg := getRegister(operands[0], fileName, lineNumber)
-	outBin = outBin << 5 | uint32(destReg)
+	destReg, err := getRegister(operands[0], fileName, lineNumber)
+	if err == nil {
+		outBin = outBin << 5 | uint32(destReg)
+	} else {
+		return 0, err
+	}
 
 	// Return the instruction binary
-	return outBin
+	return outBin, nil
 }
 
 // Generates the binary for R instructions
-func instrR(opcode string, operands []string, fileName string, lineNumber int) uint32 {
+func instrR(opcode string, operands []string, fileName string, lineNumber int) (uint32, error) {
 	// Make sure we have the right number of operands
 	switch opcode {
 	case "ADD", "ADDS", "SUB", "SUBS":
 		if len(operands) != 3 {
 			errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
-			log.Fatal(errMsg)
+			return 0, errors.New(errMsg)
 		}
 	}
 
@@ -161,33 +174,45 @@ func instrR(opcode string, operands []string, fileName string, lineNumber int) u
 	switch opcode {
 	case "ADD", "ADDS", "SUB", "SUBS":
 		// Get the first register for the operation
-		readReg1 := getRegister(operands[1], fileName, lineNumber)
-		outBin = outBin << 5 | uint32(readReg1)
+		readReg1, err := getRegister(operands[1], fileName, lineNumber)
+		if err == nil {
+			outBin = outBin << 5 | uint32(readReg1)
+		} else {
+			return 0, err
+		}
 		
 		// Add an empty shift amount
 		outBin = outBin << 6
 
 		// Get the second register for the operation
-		readReg2 := getRegister(operands[2], fileName, lineNumber)
-		outBin = outBin << 5 | uint32(readReg2)
+		readReg2, err := getRegister(operands[2], fileName, lineNumber)
+		if err == nil {
+			outBin = outBin << 5 | uint32(readReg2)
+		} else {
+			return 0, err
+		}
 
 		// Get the destination register for the operation
-		destReg := getRegister(operands[0], fileName, lineNumber)
-		outBin = outBin << 5 | uint32(destReg)
+		destReg, err := getRegister(operands[0], fileName, lineNumber)
+		if err == nil {
+			outBin = outBin << 5 | uint32(destReg)
+		} else {
+			return 0, err
+		}
 	}
 
 	// Return the instruction binary
-	return outBin
+	return outBin, nil
 }
 
 // Generates the binary for I instructions
-func instrI(opcode string, operands []string, fileName string, lineNumber int) uint32 {
+func instrI(opcode string, operands []string, fileName string, lineNumber int) (uint32, error) {
 	// Make sure we have the right number of operands
 	switch opcode {
 	case "ADDI", "ADDIS", "SUBI":
 		if len(operands) != 3 {
 			errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
-			log.Fatal(errMsg)
+			return 0, errors.New(errMsg)
 		}
 	}
 
@@ -209,28 +234,40 @@ func instrI(opcode string, operands []string, fileName string, lineNumber int) u
 	switch opcode {
 	case "ADDI", "ADDIS", "SUBI", "SUBIS":
 		// Get the immediate value for adding
-		val := getValue(operands[2], 12, "ALU immediate", fileName, lineNumber)
-		outBin = outBin << 12 | uint32(val)
+		val, err := getValue(operands[2], 12, "ALU immediate", fileName, lineNumber)
+		if err == nil {
+			outBin = outBin << 12 | uint32(val)
+		} else {
+			return 0, err
+		}
 
 		// Get the register for the operation
-		srcReg := getRegister(operands[1], fileName, lineNumber)
-		outBin = outBin << 5 | uint32(srcReg)
+		srcReg, err := getRegister(operands[1], fileName, lineNumber)
+		if err == nil {
+			outBin = outBin << 5 | uint32(srcReg)
+		} else {
+			return 0, err
+		}
 
 		// Get the destination register for the operation
-		destReg := getRegister(operands[0], fileName, lineNumber)
-		outBin = outBin << 5 | uint32(destReg)
+		destReg, err := getRegister(operands[0], fileName, lineNumber)
+		if err == nil {
+			outBin = outBin << 5 | uint32(destReg)
+		} else {
+			return 0, err
+		}
 	}
 
 	// Return the instruction binary
-	return outBin
+	return outBin, nil
 }
 
 // Generates the binary for D instructions
-func instrD(opcode string, operands []string, fileName string, lineNumber int) uint32 {
+func instrD(opcode string, operands []string, fileName string, lineNumber int) (uint32, error) {
 	// Make sure we have the right number of operands
 	if len(operands) != 3 {
 		errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
-		log.Fatal(errMsg)
+		return 0, errors.New(errMsg)
 	}
 
 	outBin := uint32(0)
@@ -256,30 +293,42 @@ func instrD(opcode string, operands []string, fileName string, lineNumber int) u
 	}
 
 	// Get the immediate value for adding
-	val := getValue(operands[2], 9, "destination address", fileName, lineNumber)
-	outBin = outBin << 9 | uint32(val)
+	val, err := getValue(operands[2], 9, "destination address", fileName, lineNumber)
+	if err == nil {
+		outBin = outBin << 9 | uint32(val)
+	} else {
+		return 0, err
+	}
 
 	// Op is always 0
 	outBin = outBin << 2
 
 	// Get the register for the operation
-	reg1 := getRegister(operands[1], fileName, lineNumber)
-	outBin = outBin << 5 | uint32(reg1)
+	reg1, err := getRegister(operands[1], fileName, lineNumber)
+	if err == nil {
+		outBin = outBin << 5 | uint32(reg1)
+	} else {
+		return 0, err
+	}
 
 	// Get the destination register for the operation
-	destReg := getRegister(operands[0], fileName, lineNumber)
-	outBin = outBin << 5 | uint32(destReg)
+	destReg, err := getRegister(operands[0], fileName, lineNumber)
+	if err == nil {
+		outBin = outBin << 5 | uint32(destReg)
+	} else {
+		return 0, err
+	}
 
 	// Return the instruction binary
-	return outBin
+	return outBin, nil
 }
 
 // Generates the binary for branch instructions
-func instrB(opcode string, operands []string, fileName string, lineNumber int) uint32 {
+func instrB(opcode string, operands []string, fileName string, lineNumber int) (uint32, error) {
 	// Make sure we only have 1 operand
 	if len(operands) != 1 {
 		errMsg := fmt.Sprintf("Invalid instruction format: Expected 1 operand but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
-		log.Fatal(errMsg)
+		return 0, errors.New(errMsg)
 	}
 
 	outBin := uint32(0)
@@ -291,18 +340,22 @@ func instrB(opcode string, operands []string, fileName string, lineNumber int) u
 	}
 
 	// Get the relative branch address
-	branchAddr := uint32(getValue(operands[0], 26, "branch address", fileName, lineNumber))
-	outBin = outBin << 26 | branchAddr
+	branchAddr, err := getValue(operands[0], 26, "branch address", fileName, lineNumber)
+	if err == nil {
+		outBin = outBin << 26 | uint32(branchAddr)
+	} else {
+		return 0, err
+	}
 
-	return outBin
+	return outBin, nil
 }
 
 // Generates the binary for conditional branch instructions
-func instrCB(opcode string, operands []string, fileName string, lineNumber int) uint32 {
+func instrCB(opcode string, operands []string, fileName string, lineNumber int) (uint32, error) {
 	// Make sure we only have 1 operand
 	if len(operands) != 2 {
 		errMsg := fmt.Sprintf("Invalid instruction format: Expected 2 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
-		log.Fatal(errMsg)
+		return 0, errors.New(errMsg)
 	}
 
 	outBin := uint32(0)
@@ -316,56 +369,68 @@ func instrCB(opcode string, operands []string, fileName string, lineNumber int) 
 	}
 
 	// Get the branch address
-	branchAddr := uint32(getValue(operands[1], 19, "branch address", fileName, lineNumber))
-	outBin = outBin << 19 | branchAddr
+	branchAddr, err := getValue(operands[1], 19, "branch address", fileName, lineNumber)
+	if err == nil {
+		outBin = outBin << 19 | uint32(branchAddr)
+	} else {
+		return 0, err
+	}
 
 	// Get the register for the condition
-	register := uint32(getRegister(operands[0], fileName, lineNumber))
-	outBin = outBin << 5 | register
+	register, err := getRegister(operands[0], fileName, lineNumber)
+	if err == nil {
+		outBin = outBin << 5 | uint32(register)
+	} else {
+		return 0, err
+	}
 
-	return outBin
+	return outBin, nil
 }
 
 // Generates the binary for constant data
-func instrData(operands []string, fileName string, lineNumber int) uint32 {
+func instrData(operands []string, fileName string, lineNumber int) (uint32, error) {
 	// Make sure we only have 1 number
 	if len(operands) != 1 {
 		errMsg := fmt.Sprintf("Invalid instruction format: Expected 3 operands but got %d; File: %s; Line: %d", len(operands), fileName, lineNumber)
-		log.Fatal(errMsg)
+		return 0, errors.New(errMsg)
 	}
 
 	// Get the value and return it
-	outBin := uint32(getValue(operands[0], 32, "data", fileName, lineNumber))
+	val, err := getValue(operands[0], 32, "data", fileName, lineNumber)
+	var outBin uint32
+	if err == nil {
+		outBin = uint32(val)
+	} else {
+		return 0, err
+	}
 
-	return outBin
+	return outBin, nil
 }
 
 // Parses a string for a register value
-func getRegister(regString string, fileName string, lineNumber int) int64 {
+func getRegister(regString string, fileName string, lineNumber int) (int64, error) {
 	// Get the register for the operation
 	reg, errConv := strconv.ParseInt(regString[1:], 10, 0)
 	if errConv != nil {
 		// Account for XZR register
 		if regString[1:] == "ZR" {
-			return 0x1F
+			return 0x1F, nil
 		}
 		// Bad value error
 		errMsg := fmt.Sprintf("Bad register value; File: %s; Line: %d", fileName, lineNumber)
-		log.Fatal(errMsg)
-		return -1
+		return -1, errors.New(errMsg)
 	} else if reg < 0 || reg > 30 {
 		// Invalid register error
 		errMsg := fmt.Sprintf("Bad register value: Register must be between 0 and 30 (inclusive); File: %s; Line: %d", fileName, lineNumber)
-		log.Fatal(errMsg)
-		return -1
+		return -1, errors.New(errMsg)
 	} else {
 		// Return the register
-		return reg
+		return reg, nil
 	}
 }
 
 // Parses a string for a constant value
-func getValue(valStr string, maxSize int, valName string, fileName string, lineNumber int) uint64 {
+func getValue(valStr string, maxSize int, valName string, fileName string, lineNumber int) (uint64, error) {
 	// Get the value to move into the register
 	base := 0
 	cut := 0
@@ -381,7 +446,7 @@ func getValue(valStr string, maxSize int, valName string, fileName string, lineN
 	// Get the value based on the base that was decided earlier
 	val, errConv := strconv.ParseUint(valStr[cut:], base, maxSize)
 	if errConv == nil {
-		return val
+		return val, nil
 	} else {
 		errMsg := ""
 		if strings.Contains(errConv.Error(), "value out of range") {
@@ -397,7 +462,6 @@ func getValue(valStr string, maxSize int, valName string, fileName string, lineN
 			// Bad value error
 			errMsg = fmt.Sprintf("Bad %s value; File: %s; Line: %d", valName, fileName, lineNumber)
 		}
-		log.Fatal(errMsg)
-		return 0
+		return 0, errors.New(errMsg)
 	}
 }

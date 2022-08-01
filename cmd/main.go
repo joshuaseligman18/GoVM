@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/joshuaseligman/GoVM/pkg/assembler"
 	"github.com/joshuaseligman/GoVM/pkg/gui"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/clock"
@@ -9,7 +11,10 @@ import (
 )
 
 func main() {
-	assembledProgram := assembler.AssembleProgram("test.goas", 0x10000)
+	assembledProgram, err := assembler.AssembleProgram("test.goas", 0x10000)
+	if err != nil {
+		log.Fatal(err)
+	}
 	
 	mem := memory.NewFlashedMemory(assembledProgram)
 	
