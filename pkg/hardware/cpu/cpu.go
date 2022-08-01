@@ -90,7 +90,7 @@ func (cpu *Cpu) Pulse() {
 		cpu.idexReg = <- idexChan
 		decodeRunning = false
 		cpu.Log(fmt.Sprintf("Starting execute: %d", cpu.idexReg.incrementedPC - 4))
-		go cpu.executeUnit.ExecuteInstruction(exmemChan, cpu.idexReg)
+		go cpu.executeUnit.ExecuteInstruction(exmemChan, cpu.idexReg, &memRunning, &writebackRunning)
 		executeRunning = true
 	}
 
@@ -114,7 +114,7 @@ func (cpu *Cpu) Pulse() {
 // Function to stop the pipeline
 func (cpu *Cpu) FlushPipeline(newPC uint64) {
     // Wait until both fetch and decode units are sitting
-    for len(ifidChan) == 0 && len(idexChan) == 0 {
+    for len(ifidChan) == 0 || len(idexChan) == 0 {
         continue
     }
 

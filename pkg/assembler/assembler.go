@@ -31,17 +31,24 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 
 		// Get the end of the opcode
 		opcodeSplit := strings.Index(instr, " ")
-		if opcodeSplit == -1 {
+
+		// Define the variables for the opcode and operands
+		var opcode string
+		var operands []string
+
+		if opcodeSplit == -1 && instr != "HLT" {
 			log.Fatal("Invalid instruction ", instr)
+		} else if opcodeSplit != -1 && instr != "HLT" {
+			// Get the opcode
+			opcode = instr[:opcodeSplit]
+			fmt.Println(opcode)
+	
+			// Get a list of operands
+			operands = strings.Split(instr[opcodeSplit + 1:], ", ")
+			fmt.Println(operands)
+		} else if instr == "HLT" {
+			opcode = "HLT"
 		}
-
-		// Get the opcode
-		opcode := instr[:opcodeSplit]
-		fmt.Println(opcode)
-
-		// Get a list of operands
-		operands := strings.Split(instr[opcodeSplit + 1:], ", ")
-		fmt.Println(operands)
 
 		instrBin := uint32(0)
 
@@ -67,6 +74,12 @@ func AssembleProgram(filePath string, maxSize int) []uint32 {
 		// Constant data
 		case "DATA":
 			instrBin = instrData(operands, filePath, instrIndex + 1)
+		// Halt
+		case "HLT":
+			instrBin = 0
+		default:
+			errMsg := fmt.Sprintf("Invalid opcode; File: %s; Line: %d", filePath, instrIndex + 1)
+			log.Fatal(errMsg)
 		}
 
 		// Add the instruction to the program

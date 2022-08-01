@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 	"github.com/joshuaseligman/GoVM/pkg/util"
@@ -27,7 +28,7 @@ func NewExecuteUnit(cpuPtr *Cpu) *ExecuteUnit {
 }
 
 // Function to execute the given instruction
-func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg) {
+func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg, memRunning *bool, wbRunning *bool) {
 	opcode := idexReg.instr >> 21
 
 	switch opcode {
@@ -158,6 +159,13 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg)
 			workingAddr: output,
 			writeVal: idexReg.regReadData2,
 		}
+
+	case 0x000: // HLT
+		for *memRunning || *wbRunning {
+			continue
+		}
+		exu.Log("Halting program")
+		os.Exit(0)
 	}
 
 	if opcode >= 0x0A0 && opcode <= 0x0BF { // B

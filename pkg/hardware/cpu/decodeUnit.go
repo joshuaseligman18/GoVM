@@ -27,8 +27,42 @@ func NewDecodeUnit(parentCpu *Cpu) *DecodeUnit {
 func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
 	opcode := ifidReg.instr >> 21
 	idu.Log(fmt.Sprintf("%X", opcode))
+
+	// Branch instructions
+	if opcode >= 0x0A0 && opcode <= 0x0BF { // B
+		branchAddr := ifidReg.instr & 0x3FFFFFF
+		signExtendBranchAddr := util.SignExtend(branchAddr, 26)
+
+		out <- &IDEXReg {
+			instr: ifidReg.instr,
+			incrementedPC: ifidReg.incrementedPC,
+			signExtendImm: signExtendBranchAddr,
+		}
+		return
+	}
+
+	// Conditional branch instructions
+	if opcode >= 0x5A0 && opcode <= 0x5A7 || // CBZ
+		opcode >= 0x5A8 && opcode <= 0x5AF { // CBNZ
+		branchAddr := ifidReg.instr & 0xFFFFFF >> 5
+		signExtendBranchAddr := util.SignExtend(branchAddr, 19)
+
+		reg := ifidReg.instr & 0x1F
+		for idu.cpu.GetRegisterLocks().Contains(reg) {
+			continue
+		}
+		regReadData1 := idu.cpu.GetRegisters()[reg]
+
+		out <- &IDEXReg {
+			instr: ifidReg.instr,
+			incrementedPC: ifidReg.incrementedPC,
+			signExtendImm: signExtendBranchAddr,
+			regReadData1: regReadData1,
+		}
+		return
+	}
+
 	switch opcode {
-	// IM instructions
 	case 0x694, 0x695, 0x696, 0x697: // MOVZ
 		// Register to write to
 		regWrite := ifidReg.instr & 0x1F
@@ -186,38 +220,12 @@ func (idu *DecodeUnit) DecodeInstruction(out chan *IDEXReg, ifidReg *IFIDReg) {
             regReadData2: regData2,
             signExtendImm: signExtendImm,
         }
-	}
-
-	// Branch instructions
-	if opcode >= 0x0A0 && opcode <= 0x0BF { // B
-		branchAddr := ifidReg.instr & 0x3FFFFFF
-		signExtendBranchAddr := util.SignExtend(branchAddr, 26)
-
-        out <- &IDEXReg {
-            instr: ifidReg.instr,
-            incrementedPC: ifidReg.incrementedPC,
-            signExtendImm: signExtendBranchAddr,
-        }
-	}
-
-	// Conditional branch instructions
-	if opcode >= 0x5A0 && opcode <= 0x5A7 || // CBZ
-	   opcode >= 0x5A8 && opcode <= 0x5AF { // CBNZ
-		branchAddr := ifidReg.instr & 0xFFFFFF >> 5
-		signExtendBranchAddr := util.SignExtend(branchAddr, 19)
-
-		reg := ifidReg.instr & 0x1F
-		for idu.cpu.GetRegisterLocks().Contains(reg) {
-			continue
-		}
-		regReadData1 := idu.cpu.GetRegisters()[reg]
-
-        out <- &IDEXReg {
-            instr: ifidReg.instr,
-            incrementedPC: ifidReg.incrementedPC,
-            signExtendImm: signExtendBranchAddr,
-            regReadData1: regReadData1,
-        }
+	case 0x000: // HLT
+		out <- &IDEXReg {}
+	
+	default: // Bad opcode
+		errMsg := fmt.Sprintf("Decoded an invalid instruction; PC: %s", util.ConvertToHexUint64(ifidReg.incrementedPC - 4))
+		log.Fatal(errMsg)
 	}
 }
 
