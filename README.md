@@ -87,5 +87,21 @@ SUBIS Rd, Rm, Imm
 *Imm: The 12-bit unsigned immediate value to add (0x000 - 0xFFF)*
 
 ### Data Transfer Instructions
+**MOVZ** - Loads a constant into a register ***WITHOUT*** retaining the previous contents of the register.
+```
+MOVZ Rd, Imm, LSL Amt
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Imm: The 16-bit constant to load to the register (0x0000 - 0xFFFF)* <br />
+*Amt: The amount to left-shift the immediate by (0, 16, 32, 48)*
+
+**MOVK** - Loads a constant into a register ***AND*** retains the unaffected contents of the register.
+```
+MOVK Rd, Imm, LSL Amt
+```
+*Rd: The destination register (X0 - X30)* <br />
+*Imm: The 16-bit constant to load to the register (0x0000 - 0xFFFF)* <br />
+*Amt: The amount to left-shift the immediate by (0, 16, 32, 48)*
+
 ### Branching Instructions
 ### Miscellaneous Instructions
