@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/joshuaseligman/GoVM/pkg/assembler"
-	"github.com/joshuaseligman/GoVM/pkg/gui"
+	"github.com/joshuaseligman/GoVM/internal/gui"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/clock"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/cpu"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
