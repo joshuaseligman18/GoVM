@@ -190,3 +190,14 @@ CBNZ Rm, Addr
 *Addr: The 19-bit signed 2's complement relative address to branch to (0x00000 - 0x7FFFF)*
 
 ### Miscellaneous Instructions
+
+**DATA** - Places a value in memory.
+```
+DATA Val
+```
+*Val: The 32-bit value to place in memory at the location within the program*
+
+**HLT** - Stops the program.
+```
+HLT
+```
