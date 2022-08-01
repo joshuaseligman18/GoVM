@@ -70,7 +70,7 @@ SUBS Rd, Rm, Rn
 *Rm: The first register for the operation (X0 - X30, XZR)* <br />
 *Rn: The second register for the operation (X0 - X30, XZR)*
 
-**SUBBI** - Subtracts a constant to the contents of a register and saves the output in another register. The ALU flags are ***NOT*** set from this instruction.
+**SUBI** - Subtracts a constant to the contents of a register and saves the output in another register. The ALU flags are ***NOT*** set from this instruction.
 ```
 SUBI Rd, Rm, Imm
 ```
