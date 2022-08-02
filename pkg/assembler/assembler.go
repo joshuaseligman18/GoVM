@@ -111,7 +111,7 @@ func AssembleProgramAPI(progStr string) ([]uint32, error) {
 		var operands []string
 
 		if opcodeSplit == -1 && instr != "HLT" {
-			errMsg := fmt.Sprint("Invalid instruction ", instr)
+			errMsg := fmt.Sprintf("Invalid instruction: %s; File: %s; Line: %d", instr, filePath, instrIndex + 1)
 			return nil, errors.New(errMsg)
 		} else if opcodeSplit != -1 && instr != "HLT" {
 			// Get the opcode
