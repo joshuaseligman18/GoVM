@@ -10,7 +10,7 @@ import (
 // Struct for memory
 type Memory struct {
 	hw *hardware.Hardware // The hardware struct
-	ram []uint8 // The RAM
+	ram []uint8 `json:"ram"`// The RAM
 }
 
 // Creates an empty memory struct
@@ -36,6 +36,33 @@ func NewFlashedMemory(program []uint32) *Memory {
 		}
 	}
 	return &mem
+}
+
+// Creates a new memory struct for the API
+func NewEmptyMemory(size int) *Memory {
+	mem := Memory {
+		hw: hardware.NewHardware("RAM", 0), 
+		ram: make([]uint8, size),
+	}
+	return &mem
+}
+
+// Flashes a program to the beginning of the memory array
+func (mem *Memory) FlashProgram(program []uint32) {
+	for i := 0; i < len(program); i++ {
+		instr := program[i]
+		for j := 0; j < 4; j++ {
+			byteInstr := uint8(instr >> (8 * (3 - j)) & 0xFF)
+			mem.ram[i * 4 + j] = byteInstr
+		}
+	}
+}
+
+// Resets the memory to 0x0 for all memory locations
+func (mem *Memory) ResetMemory() {
+	for i := 0; i < len(mem.ram); i++ {
+		mem.ram[i] = 0x0
+	}
 }
 
 // Sets the MDR to the value stored in memory at the address MAR
