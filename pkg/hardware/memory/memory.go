@@ -15,7 +15,7 @@ type Memory struct {
 
 // Struct for the API
 type MemoryAPI struct {
-	Ram [0x10000]uint8 `json:"ram"` // The RAM
+	Ram [0x3E8]uint8 `json:"ram"` // The RAM
 }
 
 // Creates an empty memory struct
@@ -101,7 +101,7 @@ func (mem *Memory) Log(msg string) {
 
 // Function that converts the memory struct to an API friendly struct
 func (mem *Memory) ConvertAPI() *MemoryAPI {
-	newRam := [0x10000]uint8{}
+	newRam := [0x3E8]uint8{}
 	copy(newRam[:], mem.ram)
 	return & MemoryAPI {
 		Ram: newRam,
