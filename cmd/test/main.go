@@ -2,21 +2,29 @@ package main
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joshuaseligman/GoVM/pkg/assembler"
+	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
 )
 
 type ProgStruct struct {
 	Prog string `json:"prog"`
 }
 
+type StatusStruct struct {
+	Memory *memory.MemoryAPI `json:"memory"`
+}
+
 func main() {
 	r := gin.Default()
 
 	r.POST("/api/asmprog", handleAsmProg)
+	r.GET("/api/test", test)
 
 	r.Use(cors.Default())
 	r.Run(":8080")
@@ -50,4 +58,28 @@ func handleAsmProg(c *gin.Context) {
 			})
 		}
 	}
+}
+
+func test(c *gin.Context) {
+	mem := memory.NewEmptyMemory(10)
+
+	// Update users every 1 second
+	ticker := time.NewTicker(1 * time.Second)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	// Stream the updated info to the user
+	c.Stream(func(w io.Writer) bool {
+		select {
+		case <-ticker.C:
+			newStatus := StatusStruct {
+				Memory: mem.ConvertAPI(),
+			}
+			// Send the "ping" event to the user with the updated queue
+			c.Header("Access-Control-Allow-Origin", "*")
+			c.SSEvent("ping", newStatus)
+		}
+		return true
+	})
 }

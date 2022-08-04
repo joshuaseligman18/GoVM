@@ -10,7 +10,12 @@ import (
 // Struct for memory
 type Memory struct {
 	hw *hardware.Hardware // The hardware struct
-	ram []uint8 `json:"ram"`// The RAM
+	ram []uint8 // The RAM
+}
+
+// Struct for the API
+type MemoryAPI struct {
+	Ram [0x10000]uint8 `json:"ram"` // The RAM
 }
 
 // Creates an empty memory struct
@@ -92,4 +97,13 @@ func (mem *Memory) MemoryDump(start uint64, end uint64) {
 // Logs a message
 func (mem *Memory) Log(msg string) {
 	mem.hw.Log(msg)
+}
+
+// Function that converts the memory struct to an API friendly struct
+func (mem *Memory) ConvertAPI() *MemoryAPI {
+	newRam := [0x10000]uint8{}
+	copy(newRam[:], mem.ram)
+	return & MemoryAPI {
+		Ram: newRam,
+	}
 }
