@@ -182,17 +182,16 @@ func (cpu *Cpu) ResetCpu() {
 		cpu.reg[i] = 0x0
 	}
 	cpu.programCounter = 0x0
-	// fetchUnit *FetchUnit // The fetch unit
-	// decodeUnit *DecodeUnit // The decode unit
-	// executeUnit *ExecuteUnit // The execute unit
-	// memDataUnit *MemDataUnit // The memory data unit
-	// writebackUnit *WritebackUnit // The writeback unit
+
+	cpu.fetchUnit.Reset()
+	cpu.executeUnit.Reset()
+	cpu.memDataUnit.Reset()
+
 	cpu.ifidReg = nil
 	cpu.idexReg = nil
 	cpu.exmemReg = nil
 	cpu.memwbReg = nil
 	cpu.regLocks.ResetQueue()
-
 
 	for len(ifidChan) > 0 {
 		<- ifidChan

@@ -36,3 +36,8 @@ func (ifu *FetchUnit) FetchInstruction(out chan *IFIDReg, addr *uint64) {
 func (ifu *FetchUnit) Log(msg string) {
 	ifu.hw.Log(msg)
 }
+
+// Resets the fetch unit
+func (ifu *FetchUnit) Reset() {
+	ifu.mmu.Reset()
+}

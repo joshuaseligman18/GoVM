@@ -177,3 +177,11 @@ func (alu *Alu) ClearFlags() {
 func (alu *Alu) Log(msg string) {
 	alu.hw.Log(msg)
 }
+
+// Resets the ALU
+func (alu *Alu) Reset() {
+	alu.negativeFlag = false
+	alu.zeroFlag = false
+	alu.overflowFlag = false
+	alu.carryFlag = false
+}

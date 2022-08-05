@@ -221,3 +221,9 @@ func movkBitAndAmountUtil(actShiftAmt uint64) uint64 {
 	}
 	return sum
 } 
+
+// Resets the execute unit
+func (exu *ExecuteUnit) Reset() {
+	exu.alu.Reset()
+	exu.flushing = false
+}

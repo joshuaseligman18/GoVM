@@ -126,3 +126,8 @@ func (mdu *MemDataUnit) HandleMemoryAccess(out chan *MEMWBReg, exmemReg *EXMEMRe
 func (mdu *MemDataUnit) Log(msg string) {
 	mdu.hw.Log(msg)
 }
+
+// Resets the memory data unit
+func (mdu *MemDataUnit) Reset() {
+	mdu.mmu.Reset()
+}

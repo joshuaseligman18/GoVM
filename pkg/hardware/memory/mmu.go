@@ -67,3 +67,9 @@ func (mmu *Mmu) SetMdr(newMdr uint64) {
 func (mmu *Mmu) Log(msg string) {
 	mmu.hw.Log(msg)
 }
+
+// Resets the MMU
+func (mmu *Mmu) Reset() {
+	mmu.mar = 0x0
+	mmu.mdr = 0x0
+}
