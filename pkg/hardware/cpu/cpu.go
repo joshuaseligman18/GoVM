@@ -26,6 +26,15 @@ type Cpu struct {
 	regLocks *util.Queue // Manages locks for reading and writing to registers
 }
 
+type CpuAPI struct {
+	Reg [32]uint64 `json:"registers"`// Other registers
+	ProgramCounter uint64 `json:"programCounter"` // The address of the current instruction being fetched
+	IfidReg *IFIDReg `json:"ifidReg"`// The register between the fetch and decode units
+	IdexReg *IDEXReg `json"idexReg"` // The register between the decode and execute units
+	ExmemReg *EXMEMReg `json:"exmemReg"` // The register between the execute and memory data units
+	MemwbReg *MEMWBReg `json:"memwbReg"` // The register between the memory data and writeback units
+}
+
 var (
 	ifidChan chan *IFIDReg = make(chan *IFIDReg, 1) // The channel to manage async communication between fetch and decode units
 	idexChan chan *IDEXReg = make(chan *IDEXReg, 1) // The channel to manage async communication between decode and execute units
@@ -70,7 +79,7 @@ func (cpu *Cpu) Pulse() {
 	if len(endInstrChan) == 0 && len(memwbChan) == 1 && !writebackRunning {
 		cpu.memwbReg = <- memwbChan
 		memRunning = false
-		cpu.Log(fmt.Sprintf("Starting writeback: %d", cpu.memwbReg.incrementedPC - 4))
+		cpu.Log(fmt.Sprintf("Starting writeback: %d", cpu.memwbReg.IncrementedPC - 4))
 		go cpu.writebackUnit.HandleWriteback(endInstrChan, cpu.memwbReg)
 		writebackRunning = true
 	}
@@ -79,7 +88,7 @@ func (cpu *Cpu) Pulse() {
 	if len(memwbChan) == 0 && len(exmemChan) == 1 && !memRunning {
 		cpu.exmemReg = <- exmemChan
 		executeRunning = false
-		cpu.Log(fmt.Sprintf("Starting mem data access: %d", cpu.exmemReg.incrementedPC - 4))
+		cpu.Log(fmt.Sprintf("Starting mem data access: %d", cpu.exmemReg.IncrementedPC - 4))
 		go cpu.memDataUnit.HandleMemoryAccess(memwbChan, cpu.exmemReg)
 		memRunning = true
 	}
@@ -88,7 +97,7 @@ func (cpu *Cpu) Pulse() {
 	if len(exmemChan) == 0 && len(idexChan) == 1 && !executeRunning && !cpu.executeUnit.flushing {
 		cpu.idexReg = <- idexChan
 		decodeRunning = false
-		cpu.Log(fmt.Sprintf("Starting execute: %d", cpu.idexReg.incrementedPC - 4))
+		cpu.Log(fmt.Sprintf("Starting execute: %d", cpu.idexReg.IncrementedPC - 4))
 		go cpu.executeUnit.ExecuteInstruction(exmemChan, cpu.idexReg, &memRunning, &writebackRunning)
 		executeRunning = true
 	}
@@ -97,7 +106,7 @@ func (cpu *Cpu) Pulse() {
 	if len(idexChan) == 0 && len(ifidChan) == 1 && !decodeRunning {
 		cpu.ifidReg = <- ifidChan
 		fetchRunning = false
-		cpu.Log(fmt.Sprintf("Starting decode: %d", cpu.ifidReg.incrementedPC - 4))
+		cpu.Log(fmt.Sprintf("Starting decode: %d", cpu.ifidReg.IncrementedPC - 4))
 		go cpu.decodeUnit.DecodeInstruction(idexChan, cpu.ifidReg)
 		decodeRunning = true
 	}
@@ -218,4 +227,19 @@ func (cpu *Cpu) ResetCpu() {
 	executeRunning = false
 	memRunning = false
 	writebackRunning = false
+}
+
+// Exports the CPU status into an API-friendly format
+func (cpu *Cpu) ConvertAPI() *CpuAPI {
+	newReg := [32]uint64{}
+	copy(newReg[:], cpu.reg)
+
+	return & CpuAPI {
+		Reg: newReg,
+		ProgramCounter: cpu.programCounter,
+		IfidReg: cpu.ifidReg,
+		IdexReg: cpu.idexReg,
+		ExmemReg: cpu.exmemReg,
+		MemwbReg: cpu.memwbReg,
+	}
 }
