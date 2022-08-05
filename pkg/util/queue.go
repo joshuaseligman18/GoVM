@@ -82,3 +82,8 @@ func (queue *Queue) ToString() string {
 	}
 	return str.String()
 }
+
+// Resets the queue
+func (queue *Queue) ResetQueue() {
+	queue.head = nil
+}

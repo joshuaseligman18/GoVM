@@ -175,3 +175,48 @@ func (cpu *Cpu) GetMEMWBReg() *MEMWBReg {
 func (cpu *Cpu) GetRegisterLocks() *util.Queue {
 	return cpu.regLocks
 }
+
+// Resets the CPU for future use
+func (cpu *Cpu) ResetCpu() {
+	for i := 0; i < len(cpu.reg); i++ {
+		cpu.reg[i] = 0x0
+	}
+	cpu.programCounter = 0x0
+	// fetchUnit *FetchUnit // The fetch unit
+	// decodeUnit *DecodeUnit // The decode unit
+	// executeUnit *ExecuteUnit // The execute unit
+	// memDataUnit *MemDataUnit // The memory data unit
+	// writebackUnit *WritebackUnit // The writeback unit
+	cpu.ifidReg = nil
+	cpu.idexReg = nil
+	cpu.exmemReg = nil
+	cpu.memwbReg = nil
+	cpu.regLocks.ResetQueue()
+
+
+	for len(ifidChan) > 0 {
+		<- ifidChan
+	}
+
+	for len(idexChan) > 0 {
+		<- idexChan
+	}
+
+	for len(exmemChan) > 0 {
+		<- exmemChan
+	}
+
+	for len(memwbChan) > 0 {
+		<- memwbChan
+	}
+
+	for len(endInstrChan) > 0 {
+		<- endInstrChan
+	}
+	
+	fetchRunning = false
+	decodeRunning = false
+	executeRunning = false
+	memRunning = false
+	writebackRunning = false
+}
