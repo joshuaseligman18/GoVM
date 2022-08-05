@@ -2,9 +2,9 @@ package cpu
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
+	"github.com/joshuaseligman/GoVM/pkg/hardware/clock"
 	"github.com/joshuaseligman/GoVM/pkg/util"
 )
 
@@ -14,15 +14,17 @@ type ExecuteUnit struct {
 	cpu *Cpu // The CPU
 	alu *Alu // The ALU
 	flushing bool // Variable to determine if the next instruction can be taken in
+	clk *clock.Clock // The clock being used
 }
 
 // Function that creates the execute unit
-func NewExecuteUnit(cpuPtr *Cpu) *ExecuteUnit {
+func NewExecuteUnit(cpuPtr *Cpu, clk *clock.Clock) *ExecuteUnit {
 	exu := ExecuteUnit {
 		hw: hardware.NewHardware("EXU", 0),
 		cpu: cpuPtr,
 		alu: NewAlu(),
 		flushing: false,
+		clk: clk,
 	}
 	return &exu
 }
@@ -165,7 +167,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg,
 			continue
 		}
 		exu.Log("Halting program")
-		os.Exit(0)
+		exu.clk.StopClock()
 	}
 
 	if opcode >= 0x0A0 && opcode <= 0x0BF { // B

@@ -136,7 +136,6 @@ func (guiData *GuiData) Pulse() {
 	// Update the register values
 	guiData.curTime.SetText(fmt.Sprintf("%d", util.GetCurrentTime()))
 	guiData.pcData.SetText(util.ConvertToHexUint32(uint32(guiData.cpu.GetProgramCounter())))
-	guiData.accData.SetText(util.ConvertToHexUint64(guiData.cpu.GetAcc()))
 	for i := 0; i < len (guiData.regData); i++ {
 		guiData.regData[i].SetText(util.ConvertToHexUint64(guiData.cpu.GetRegisters()[i]))
 	}

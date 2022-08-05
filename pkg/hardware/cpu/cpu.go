@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
+	"github.com/joshuaseligman/GoVM/pkg/hardware/clock"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
 	"github.com/joshuaseligman/GoVM/pkg/util"
 )
@@ -11,7 +12,6 @@ import (
 // Struct for the CPU
 type Cpu struct {
 	hw *hardware.Hardware // The hardware struct
-	acc uint64 // The accumulator
 	reg []uint64 // Other registers
 	programCounter uint64 // The address of the current instruction being fetched
 	fetchUnit *FetchUnit // The fetch unit
@@ -40,10 +40,9 @@ var (
 )
 
 // Creates the CPU
-func NewCpu(mem *memory.Memory) *Cpu {
+func NewCpu(mem *memory.Memory, clk *clock.Clock) *Cpu {
 	cpu := Cpu {
 		hw: hardware.NewHardware("CPU", 0),
-		acc: 0x0,
 		reg: make([]uint64, 32),
 		programCounter: 0,
 		fetchUnit: NewFetchUnit(mem),
@@ -51,7 +50,7 @@ func NewCpu(mem *memory.Memory) *Cpu {
 		regLocks: util.NewQueue(),
 	}
 	cpu.decodeUnit = NewDecodeUnit(&cpu)
-	cpu.executeUnit = NewExecuteUnit(&cpu)
+	cpu.executeUnit = NewExecuteUnit(&cpu, clk)
 	cpu.writebackUnit = NewWritebackUnit(&cpu)
 	return &cpu
 }
@@ -145,11 +144,6 @@ func (cpu *Cpu) Log(msg string) {
 // Gets the program counter
 func (cpu *Cpu) GetProgramCounter() uint64 {
 	return cpu.programCounter
-}
-
-// Gets the accumulator
-func (cpu *Cpu) GetAcc() uint64 {
-	return cpu.acc
 }
 
 // Gets the registers

@@ -9,7 +9,12 @@ import (
 type Clock struct {
 	hw *hardware.Hardware // The hardware struct
 	clockListeners []ClockListener // The list of items that listen to the clock
+	ticker *time.Ticker // The 
 }
+
+var (
+	stopChan chan bool = make(chan bool, 1) // The signal to stop the clock
+)
 
 // Creates the clock
 func NewClock() *Clock {
@@ -28,12 +33,14 @@ func (clk *Clock) AddClockListener(clockListener ClockListener) {
 // Starts the clock given the clock time in milliseconds
 func (clk *Clock) StartClock(clockTime int) {
 	// Create the ticker with the given delay
-	ticker := time.NewTicker(time.Duration(clockTime) * time.Millisecond)
+	clk.ticker = time.NewTicker(time.Duration(clockTime) * time.Millisecond)
 	// Run forever
 	for {
 		select {
+		case <-stopChan:
+			return
 		// If the delay is up
-		case <-ticker.C:
+		case <-clk.ticker.C:
 			clk.Log("clock pulse initialized")
 			// Call the pulse on all the ClockListeners
 			for i := 0; i < len(clk.clockListeners); i++ {
@@ -41,6 +48,12 @@ func (clk *Clock) StartClock(clockTime int) {
 			}
 		}
 	}
+}
+
+// Gets the ticker for the clock
+func (clk *Clock) StopClock() {
+	clk.ticker.Stop()
+	stopChan <- true
 }
 
 // Logs a message

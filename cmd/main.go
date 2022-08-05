@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/joshuaseligman/GoVM/pkg/assembler"
-	"github.com/joshuaseligman/GoVM/internal/gui"
+	// "github.com/joshuaseligman/GoVM/internal/gui"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/clock"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/cpu"
 	"github.com/joshuaseligman/GoVM/pkg/hardware/memory"
@@ -21,14 +21,14 @@ func main() {
 	
 	mem.MemoryDump(0, 30)
 	
-	cpu := cpu.NewCpu(mem)
-	guiData := gui.NewGuiData(cpu)
-
 	clk := clock.NewClock()
+	
+	cpu := cpu.NewCpu(mem, clk)
+	// guiData := gui.NewGuiData(cpu)
 
-	clk.AddClockListener(guiData)
+	// clk.AddClockListener(guiData)
 	clk.AddClockListener(cpu)
 	
-	go clk.StartClock(500)
-	gui.CreateGui(guiData)
+	clk.StartClock(500)
+	// gui.CreateGui(guiData)
 }
