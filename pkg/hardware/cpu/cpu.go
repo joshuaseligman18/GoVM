@@ -65,7 +65,7 @@ func NewCpu(mem *memory.Memory, clk *clock.Clock) *Cpu {
 }
 
 // Function that gets called every clock cycle
-func (cpu *Cpu) Pulse() *CpuAPI {
+func (cpu *Cpu) Pulse() any {
 	cpu.Log(fmt.Sprintf("%t %t %t %t %t", fetchRunning, decodeRunning, executeRunning, memRunning, writebackRunning))
 	cpu.Log(fmt.Sprintf("%d %d %d %d %d", len(ifidChan), len(idexChan), len(exmemChan), len(memwbChan), len(endInstrChan)))
 
