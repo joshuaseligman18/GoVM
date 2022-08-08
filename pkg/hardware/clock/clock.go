@@ -71,7 +71,7 @@ func (clk *Clock) StartClockAPI(clockTime int, outChan chan []any) {
 			// Call the pulse on all the ClockListeners
 			out := make([]any, len(clk.clockListeners))
 			for i := 0; i < len(clk.clockListeners); i++ {
-				out = append(out, clk.clockListeners[i].Pulse())
+				out[i] = clk.clockListeners[i].Pulse()
 			}
 			outChan <- out
 		}
