@@ -9,7 +9,8 @@ import (
 type Clock struct {
 	hw *hardware.Hardware // The hardware struct
 	clockListeners []ClockListener // The list of items that listen to the clock
-	ticker *time.Ticker // The 
+	ticker *time.Ticker // The ticker for each pulse
+	running bool
 }
 
 var (
@@ -21,6 +22,7 @@ func NewClock() *Clock {
 	clk := Clock { 
 		hw: hardware.NewHardware("CLK", 0),
 		clockListeners: make([]ClockListener, 0),
+		running: false,
 	}
 	return &clk
 }
@@ -34,10 +36,12 @@ func (clk *Clock) AddClockListener(clockListener ClockListener) {
 func (clk *Clock) StartClock(clockTime int) {
 	// Create the ticker with the given delay
 	clk.ticker = time.NewTicker(time.Duration(clockTime) * time.Millisecond)
+	clk.running = true
 	// Run forever
 	for {
 		select {
 		case <-stopChan:
+			clk.running = false
 			return
 		// If the delay is up
 		case <-clk.ticker.C:
@@ -54,6 +58,11 @@ func (clk *Clock) StartClock(clockTime int) {
 func (clk *Clock) StopClock() {
 	clk.ticker.Stop()
 	stopChan <- true
+}
+
+// Function to determine if the clock is running
+func (clk *Clock) IsStopped() bool {
+	return !clk.running
 }
 
 // Logs a message
