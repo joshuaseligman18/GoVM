@@ -54,6 +54,30 @@ func (clk *Clock) StartClock(clockTime int) {
 	}
 }
 
+// Starts the clock given the clock time in milliseconds
+func (clk *Clock) StartClockAPI(clockTime int, outChan chan []any) {
+	// Create the ticker with the given delay
+	clk.ticker = time.NewTicker(time.Duration(clockTime) * time.Millisecond)
+	clk.running = true
+	// Run forever
+	for {
+		select {
+		case <-stopChan:
+			clk.running = false
+			return
+		// If the delay is up
+		case <-clk.ticker.C:
+			clk.Log("clock pulse initialized")
+			// Call the pulse on all the ClockListeners
+			out := make([]any, len(clk.clockListeners))
+			for i := 0; i < len(clk.clockListeners); i++ {
+				out = append(out, clk.clockListeners[i].Pulse())
+			}
+			outChan <- out
+		}
+	}
+}
+
 // Gets the ticker for the clock
 func (clk *Clock) StopClock() {
 	clk.ticker.Stop()

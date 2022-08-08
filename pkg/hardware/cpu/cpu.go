@@ -30,7 +30,7 @@ type CpuAPI struct {
 	Reg [32]uint64 `json:"registers"`// Other registers
 	ProgramCounter uint64 `json:"programCounter"` // The address of the current instruction being fetched
 	IfidReg *IFIDReg `json:"ifidReg"`// The register between the fetch and decode units
-	IdexReg *IDEXReg `json"idexReg"` // The register between the decode and execute units
+	IdexReg *IDEXReg `json:"idexReg"` // The register between the decode and execute units
 	ExmemReg *EXMEMReg `json:"exmemReg"` // The register between the execute and memory data units
 	MemwbReg *MEMWBReg `json:"memwbReg"` // The register between the memory data and writeback units
 }
@@ -65,7 +65,7 @@ func NewCpu(mem *memory.Memory, clk *clock.Clock) *Cpu {
 }
 
 // Function that gets called every clock cycle
-func (cpu *Cpu) Pulse() {
+func (cpu *Cpu) Pulse() *CpuAPI {
 	cpu.Log(fmt.Sprintf("%t %t %t %t %t", fetchRunning, decodeRunning, executeRunning, memRunning, writebackRunning))
 	cpu.Log(fmt.Sprintf("%d %d %d %d %d", len(ifidChan), len(idexChan), len(exmemChan), len(memwbChan), len(endInstrChan)))
 
@@ -117,6 +117,8 @@ func (cpu *Cpu) Pulse() {
 		go cpu.fetchUnit.FetchInstruction(ifidChan, &cpu.programCounter)
 		fetchRunning = true
 	}
+
+	return cpu.ConvertAPI()
 }
 
 // Function to stop the pipeline
