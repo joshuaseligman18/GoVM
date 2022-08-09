@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
+	"github.com/joshuaseligman/GoVM/pkg/hardware/clock"
 	"github.com/joshuaseligman/GoVM/pkg/util"
 )
 
@@ -11,27 +12,15 @@ import (
 type Memory struct {
 	hw *hardware.Hardware // The hardware struct
 	ram []uint8 // The RAM
-}
-
-// Struct for the API
-type MemoryAPI struct {
-	Ram [0x3E8]uint8 `json:"ram"` // The RAM
-}
-
-// Creates an empty memory struct
-func NewMemory(addressableSpace uint) *Memory {
-	mem := Memory { 
-		hw: hardware.NewHardware("RAM", 0), 
-		ram: make([]uint8, addressableSpace), 
-	}
-	return &mem
+	clk *clock.Clock // The clock for stopping the program to prevent runtime errors
 }
 
 // Creates a memory struct with a loaded program
-func NewFlashedMemory(program []uint32) *Memory {
+func NewFlashedMemory(program []uint32, clock *clock.Clock) *Memory {
 	mem := Memory {
 		hw: hardware.NewHardware("RAM", 0), 
 		ram: make([]uint8, len(program) * 4),
+		clk: clock,
 	}
 	for i := 0; i < len(program); i++ {
 		instr := program[i]
@@ -44,10 +33,11 @@ func NewFlashedMemory(program []uint32) *Memory {
 }
 
 // Creates a new memory struct for the API
-func NewEmptyMemory(size int) *Memory {
+func NewEmptyMemory(size int, clock *clock.Clock) *Memory {
 	mem := Memory {
 		hw: hardware.NewHardware("RAM", 0), 
 		ram: make([]uint8, size),
+		clk: clock,
 	}
 	return &mem
 }
@@ -72,12 +62,21 @@ func (mem *Memory) ResetMemory() {
 
 // Sets the MDR to the value stored in memory at the address MAR
 func (mem *Memory) Read(addr uint64) uint8 {
-	return mem.ram[addr] 
+	if addr < uint64(len(mem.ram)) {
+		return mem.ram[addr] 
+	} else {
+		mem.clk.StopClock()
+		return 0
+	}
 }
 
 // Writes to RAM based on the current values of MAR and MDR
 func (mem *Memory) Write(addr uint64, data uint8) {
-	mem.ram[addr] = data
+	if addr < uint64(len(mem.ram)) {
+		mem.ram[addr] = data
+	} else {
+		mem.clk.StopClock()
+	}
 }
 
 // Prints the value stored in the given address
@@ -97,13 +96,4 @@ func (mem *Memory) MemoryDump(start uint64, end uint64) {
 // Logs a message
 func (mem *Memory) Log(msg string) {
 	mem.hw.Log(msg)
-}
-
-// Function that converts the memory struct to an API friendly struct
-func (mem *Memory) ConvertAPI() *MemoryAPI {
-	newRam := [0x3E8]uint8{}
-	copy(newRam[:], mem.ram)
-	return & MemoryAPI {
-		Ram: newRam,
-	}
 }

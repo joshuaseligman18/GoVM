@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/joshuaseligman/GoVM/pkg/assembler"
@@ -16,19 +17,28 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
-	mem := memory.NewFlashedMemory(assembledProgram)
-	
-	mem.MemoryDump(0, 30)
-	
+
 	clk := clock.NewClock()
 	
+	mem := memory.NewFlashedMemory(assembledProgram, clk)
+		
 	cpu := cpu.NewCpu(mem, clk)
 	// guiData := gui.NewGuiData(cpu)
 
 	// clk.AddClockListener(guiData)
 	clk.AddClockListener(cpu)
 	
-	clk.StartClock(500)
+	var statusChan chan []any = make(chan []any)
+	go func() {
+		for {
+			select {
+			case data := <- statusChan:
+				fmt.Println(data[0])
+			}
+		}
+	}()
+	
+	clk.StartClockAPI(1000, statusChan)
+
 	// gui.CreateGui(guiData)
 }

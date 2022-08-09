@@ -1,7 +1,9 @@
 package clock
 
 import (
+	"sync"
 	"time"
+
 	"github.com/joshuaseligman/GoVM/pkg/hardware"
 )
 
@@ -10,7 +12,8 @@ type Clock struct {
 	hw *hardware.Hardware // The hardware struct
 	clockListeners []ClockListener // The list of items that listen to the clock
 	ticker *time.Ticker // The ticker for each pulse
-	running bool
+	running bool // Variable for if the clock is running a program
+	wg sync.WaitGroup // Waitgroup to cleanly stop the clock
 }
 
 var (
@@ -45,11 +48,13 @@ func (clk *Clock) StartClock(clockTime int) {
 			return
 		// If the delay is up
 		case <-clk.ticker.C:
+			clk.wg.Add(1)
 			clk.Log("clock pulse initialized")
 			// Call the pulse on all the ClockListeners
 			for i := 0; i < len(clk.clockListeners); i++ {
 				clk.clockListeners[i].Pulse()
 			}
+			clk.wg.Done()
 		}
 	}
 }
@@ -60,13 +65,13 @@ func (clk *Clock) StartClockAPI(clockTime int, outChan chan []any) {
 	clk.ticker = time.NewTicker(time.Duration(clockTime) * time.Millisecond)
 	clk.running = true
 	// Run forever
-	for {
+	for clk.running {
 		select {
 		case <-stopChan:
 			clk.running = false
-			return
 		// If the delay is up
 		case <-clk.ticker.C:
+			clk.wg.Add(1)
 			clk.Log("clock pulse initialized")
 			// Call the pulse on all the ClockListeners
 			out := make([]any, len(clk.clockListeners))
@@ -74,12 +79,14 @@ func (clk *Clock) StartClockAPI(clockTime int, outChan chan []any) {
 				out[i] = clk.clockListeners[i].Pulse()
 			}
 			outChan <- out
+			clk.wg.Done()
 		}
 	}
 }
 
 // Gets the ticker for the clock
 func (clk *Clock) StopClock() {
+	clk.wg.Wait()
 	clk.ticker.Stop()
 	stopChan <- true
 }
