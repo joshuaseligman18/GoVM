@@ -78,10 +78,10 @@ func (cpu *Cpu) Pulse() any {
 	// Clear the mem data unit and writeback next instruction if available
 	if len(endInstrChan) == 0 && len(memwbChan) == 1 && !writebackRunning {
 		cpu.memwbReg = <- memwbChan
-		memRunning = false
 		cpu.Log(fmt.Sprintf("Starting writeback: %d", cpu.memwbReg.IncrementedPC - 4))
 		go cpu.writebackUnit.HandleWriteback(endInstrChan, cpu.memwbReg)
 		writebackRunning = true
+		memRunning = false
 	}
 
 	// Clear the execute unit and handle memory if available
