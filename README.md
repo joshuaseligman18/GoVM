@@ -9,8 +9,9 @@ GoVM is a virtual ARM processor written in Go. The project was inspired by Profe
 ## Setup Instructions
 1. Install Go from the official website [here](https://go.dev/)
 2. Create a Go module by running `go mod init <project-name>` in the directory of your project
-3. Add GoVM to your project dependencies by running `go get github.com/joshuaseligman/GoVM@v1.0.1`
+3. Add GoVM to your project dependencies by running `go get github.com/joshuaseligman/GoVM`
 4. Import GoVM at the top of your code: `import "github.com/joshuaseligman/GoVM"`
+5. Clean up the dependencies and run `go mod tidy`
 
 ## Instruction Set
 
