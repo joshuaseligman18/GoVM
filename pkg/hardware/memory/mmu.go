@@ -9,7 +9,7 @@ type Mmu struct {
 	hw *hardware.Hardware // The hardware struct
 	mar uint64 // The memory address register
 	mdr uint64 // The memory data register
-	memory *Memory
+	memory *Memory // The memory that the MMU is interfacing with
 }
 
 // Function that creates the MMU

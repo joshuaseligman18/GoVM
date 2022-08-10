@@ -9,7 +9,7 @@ import (
 // Struct for the writeback unit
 type WritebackUnit struct {
 	hw  hardware.Hardware // The hardware component
-	cpu *Cpu
+	cpu *Cpu // The corresponding CPU
 }
 
 // Function that creates the writeback unit

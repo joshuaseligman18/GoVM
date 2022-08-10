@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/joshuaseligman/GoVM/pkg/assembler"
@@ -28,17 +27,7 @@ func main() {
 	// clk.AddClockListener(guiData)
 	clk.AddClockListener(cpu)
 	
-	var statusChan chan []any = make(chan []any)
-	go func() {
-		for {
-			select {
-			case data := <- statusChan:
-				fmt.Println(data[0])
-			}
-		}
-	}()
-	
-	clk.StartClockAPI(1000, statusChan)
+	clk.StartClock(1000)
 
 	// gui.CreateGui(guiData)
 }

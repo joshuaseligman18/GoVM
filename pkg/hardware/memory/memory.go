@@ -62,6 +62,7 @@ func (mem *Memory) ResetMemory() {
 
 // Sets the MDR to the value stored in memory at the address MAR
 func (mem *Memory) Read(addr uint64) uint8 {
+	// Only allow a read if the address is valid
 	if addr < uint64(len(mem.ram)) {
 		return mem.ram[addr] 
 	} else {
@@ -72,6 +73,7 @@ func (mem *Memory) Read(addr uint64) uint8 {
 
 // Writes to RAM based on the current values of MAR and MDR
 func (mem *Memory) Write(addr uint64, data uint8) {
+	// Only allow a write if the address is valid
 	if addr < uint64(len(mem.ram)) {
 		mem.ram[addr] = data
 	} else {

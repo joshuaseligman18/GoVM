@@ -6,11 +6,13 @@ import (
 	"github.com/joshuaseligman/GoVM/pkg/util"
 )
 
+// The struct for the fetch unit
 type FetchUnit struct {
-	hw  *hardware.Hardware
-	mmu *memory.Mmu
+	hw  *hardware.Hardware // The hardware component
+	mmu *memory.Mmu // A MMU to interface with memory to fetch the instructions
 }
 
+// Creates a new fetch unit
 func NewFetchUnit(mem *memory.Memory) *FetchUnit {
 	fetchUnit := FetchUnit{
 		hw:  hardware.NewHardware("IFU", 0),

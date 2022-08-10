@@ -26,6 +26,7 @@ type Cpu struct {
 	regLocks *util.Queue // Manages locks for reading and writing to registers
 }
 
+// Struct for the CPU to be used with the API
 type CpuAPI struct {
 	Reg [32]uint64 `json:"registers"`// Other registers
 	ProgramCounter uint64 `json:"programCounter"` // The address of the current instruction being fetched
@@ -189,21 +190,25 @@ func (cpu *Cpu) GetRegisterLocks() *util.Queue {
 
 // Resets the CPU for future use
 func (cpu *Cpu) ResetCpu() {
+	// All registers go back to 0
 	for i := 0; i < len(cpu.reg); i++ {
 		cpu.reg[i] = 0x0
 	}
 	cpu.programCounter = 0x0
 
+	// Reset the units that have data in them
 	cpu.fetchUnit.Reset()
 	cpu.executeUnit.Reset()
 	cpu.memDataUnit.Reset()
 
+	// More registers get cleared
 	cpu.ifidReg = nil
 	cpu.idexReg = nil
 	cpu.exmemReg = nil
 	cpu.memwbReg = nil
 	cpu.regLocks.ResetQueue()
 
+	// Clear all channels
 	for len(ifidChan) > 0 {
 		<- ifidChan
 	}
@@ -224,6 +229,7 @@ func (cpu *Cpu) ResetCpu() {
 		<- endInstrChan
 	}
 	
+	// Lastly allow the units to run again by setting the flags to false
 	fetchRunning = false
 	decodeRunning = false
 	executeRunning = false
@@ -233,6 +239,7 @@ func (cpu *Cpu) ResetCpu() {
 
 // Exports the CPU status into an API-friendly format
 func (cpu *Cpu) ConvertAPI() *CpuAPI {
+	// Convert the slice to an array for the API to output the actual array
 	newReg := [32]uint64{}
 	copy(newReg[:], cpu.reg)
 

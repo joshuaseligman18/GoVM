@@ -86,6 +86,7 @@ func (clk *Clock) StartClockAPI(clockTime int, outChan chan []any) {
 
 // Gets the ticker for the clock
 func (clk *Clock) StopClock() {
+	// Don't stop until the CPU is ready to stop
 	clk.wg.Wait()
 	clk.ticker.Stop()
 	stopChan <- true

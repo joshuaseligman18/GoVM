@@ -10,8 +10,8 @@ import (
 
 // Struct for the decode unit
 type DecodeUnit struct {
-	hw  *hardware.Hardware
-	cpu *Cpu
+	hw  *hardware.Hardware // The hardware component
+	cpu *Cpu // The CPU for access to its functions
 }
 
 // Function that creates the decode unit

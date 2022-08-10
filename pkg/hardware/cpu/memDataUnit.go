@@ -21,6 +21,7 @@ func NewMemDataUnit(mem *memory.Memory) *MemDataUnit {
 	return &mdu
 }
 
+// Function that handles the memory access for an instruction
 func (mdu *MemDataUnit) HandleMemoryAccess(out chan *MEMWBReg, exmemReg *EXMEMReg) {
 	opcode := exmemReg.Instr >> 21
 	switch opcode {
