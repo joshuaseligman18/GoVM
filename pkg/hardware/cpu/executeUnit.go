@@ -174,6 +174,7 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg,
 		// Get the new program counter
 		offset := idexReg.SignExtendImm << 2
 		newPC := exu.alu.Add(idexReg.IncrementedPC, offset)
+		exu.alu.ClearFlags()
 		exu.Log(util.ConvertToHexUint64(newPC))
 		// Flush the pipeline
 		exu.flushing = true
@@ -193,10 +194,12 @@ func (exu *ExecuteUnit) ExecuteInstruction(out chan *EXMEMReg, idexReg *IDEXReg,
 		if opcode >= 0x5A0 && opcode <= 0x5A7 && exu.alu.zeroFlag || // CBZ condition
 			opcode >= 0x5A8 && opcode <= 0x5AF && !exu.alu.zeroFlag { // CBNZ condition
 			offSet := idexReg.SignExtendImm << 2
+			exu.alu.ClearFlags()
 			newPC := exu.alu.Add(idexReg.IncrementedPC, offSet)
 			exu.flushing = true
 			go exu.cpu.FlushPipeline(newPC)
 		}
+		exu.alu.ClearFlags()
 		// Continue execution of the branch instruction
 		out <- &EXMEMReg{
 			Instr:         idexReg.Instr,
